@@ -1,8 +1,11 @@
 .deps/
 uploads/
 outputs/
+.runtime/
 __pycache__/
 *.pyc
 *.pyo
 *.pyd
 .env
+.vercel/
+.DS_Store

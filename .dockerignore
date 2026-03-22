@@ -1,0 +1,11 @@
+.git
+.gitignore
+.vercel
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.runtime/
+.deps/
+uploads/
+outputs/

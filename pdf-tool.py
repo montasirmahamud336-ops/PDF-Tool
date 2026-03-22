@@ -1,14 +1,19 @@
 ﻿from __future__ import annotations
 
+"""PDFForge FastAPI application for PDF, image, and document workflows."""
+
 import base64
-from html import escape
+import os
 import re
 import sys
+import tempfile
 import uuid
 import webbrowser
 from collections import Counter
+from contextlib import redirect_stderr, redirect_stdout
 from datetime import datetime
-from io import BytesIO
+from html import escape
+from io import BytesIO, StringIO
 from pathlib import Path
 from typing import List, Optional
 
@@ -55,7 +60,8 @@ except Exception:
     Workbook = None
     load_workbook = None
 try:
-    from weasyprint import HTML
+    with StringIO() as _weasyprint_output, redirect_stdout(_weasyprint_output), redirect_stderr(_weasyprint_output):
+        from weasyprint import HTML
 except Exception:
     HTML = None
 try:
@@ -68,9 +74,10 @@ except Exception:
     Translator = None
 
 
-BASE_DIR = Path(__file__).resolve().parent
-UPLOAD_DIR = BASE_DIR / "uploads"
-OUTPUT_DIR = BASE_DIR / "outputs"
+APP_DIR = Path(__file__).resolve().parent
+APP_TITLE = "PDFForge Tool API"
+APP_DESCRIPTION = "Multi-tool PDF workflows for merge, split, convert, scan, and document utilities."
+APP_VERSION = "1.0.0"
 SUPPORTED_MERGE_EXTS = {
     ".pdf",
     ".png",
@@ -90,13 +97,74 @@ SUPPORTED_MERGE_EXTS = {
 SUPPORTED_IMAGE_FORMATS = {"png", "jpeg", "jpg", "webp"}
 TEXT_SOURCE_EXTS = {".txt", ".md", ".csv", ".json"}
 
-UPLOAD_DIR.mkdir(exist_ok=True)
-OUTPUT_DIR.mkdir(exist_ok=True)
+def _env_flag(name: str, default: bool = False) -> bool:
+    raw = os.getenv(name)
+    if raw is None:
+        return default
+    return raw.strip().lower() in {"1", "true", "yes", "on"}
 
-app = FastAPI(title="PDF Tool API")
+
+def _is_hosted_environment() -> bool:
+    hosted_markers = ("VERCEL", "RAILWAY_ENVIRONMENT", "RENDER", "K_SERVICE", "DYNO")
+    return any(os.getenv(marker) for marker in hosted_markers)
+
+
+def _is_writable_dir(path: Path) -> bool:
+    try:
+        path.mkdir(parents=True, exist_ok=True)
+        probe = path / ".write-test"
+        probe.write_text("ok", encoding="utf-8")
+        probe.unlink(missing_ok=True)
+        return True
+    except Exception:
+        return False
+
+
+def _resolve_runtime_root() -> Path:
+    override = os.getenv("PDF_TOOL_RUNTIME_DIR")
+    candidates: List[Path] = []
+    if override:
+        candidates.append(Path(override).expanduser())
+
+    temp_root = Path(tempfile.gettempdir()) / "pdf-tool-runtime"
+    if os.getenv("VERCEL"):
+        candidates.append(temp_root)
+        candidates.append(APP_DIR / ".runtime")
+    else:
+        candidates.append(APP_DIR)
+        candidates.append(APP_DIR / ".runtime")
+        candidates.append(temp_root)
+
+    for candidate in candidates:
+        if _is_writable_dir(candidate):
+            return candidate
+
+    raise RuntimeError("Could not find a writable runtime directory for uploads and outputs.")
+
+
+def _parse_cors_origins() -> List[str]:
+    raw = os.getenv("PDF_TOOL_CORS_ORIGINS", "*").strip()
+    if not raw or raw == "*":
+        return ["*"]
+    return [origin.strip() for origin in raw.split(",") if origin.strip()]
+
+
+RUNTIME_ROOT = _resolve_runtime_root()
+UPLOAD_DIR = RUNTIME_ROOT / "uploads"
+OUTPUT_DIR = RUNTIME_ROOT / "outputs"
+INDEX_FILE = APP_DIR / "index.html"
+
+UPLOAD_DIR.mkdir(parents=True, exist_ok=True)
+OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
+
+app = FastAPI(
+    title=APP_TITLE,
+    description=APP_DESCRIPTION,
+    version=APP_VERSION,
+)
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=_parse_cors_origins(),
     allow_methods=["*"],
     allow_headers=["*"],
 )
@@ -570,7 +638,7 @@ def _render_pdf_pages(
 
 @app.get("/")
 def home():
-    return FileResponse(str(BASE_DIR / "index.html"))
+    return FileResponse(str(INDEX_FILE))
 
 
 @app.get("/api/health")
@@ -1478,15 +1546,21 @@ async def scan_to_pdf(
 
 
 if __name__ == "__main__":
-    app_url = "http://localhost:8001"
-    try:
-        webbrowser.open_new_tab(app_url)
-    except Exception:
-        pass
+    host = os.getenv("PDF_TOOL_HOST", "0.0.0.0")
+    port = int(os.getenv("PORT", os.getenv("PDF_TOOL_PORT", "8001")))
+    open_browser = _env_flag("PDF_TOOL_OPEN_BROWSER", default=not _is_hosted_environment())
+    browser_host = "localhost" if host == "0.0.0.0" else host
+    app_url = f"http://{browser_host}:{port}"
+
+    if open_browser:
+        try:
+            webbrowser.open_new_tab(app_url)
+        except Exception:
+            pass
 
     uvicorn.run(
         app,
-        host="0.0.0.0",
-        port=8001,
+        host=host,
+        port=port,
         reload=False,
     )

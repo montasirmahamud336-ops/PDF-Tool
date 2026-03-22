@@ -1,0 +1,15 @@
+fastapi
+uvicorn[standard]
+python-multipart
+Pillow
+PyPDF2
+pdf2image
+pypdfium2
+reportlab
+python-docx
+python-pptx
+openpyxl
+weasyprint
+PyMuPDF
+googletrans
+
