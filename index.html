@@ -2180,7 +2180,9 @@
 </div>
 
 <script>
-  const API = "http://localhost:8001";
+  const API = window.location.origin && window.location.origin !== 'null'
+    ? window.location.origin
+    : 'http://localhost:8001';
   let mergeFiles = [];
   let mergeOutputUrl = null;
   let mergeDefaultName = 'merged-file';
