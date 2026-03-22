@@ -1926,7 +1926,7 @@
         <div class="img-preview-grid" id="img-preview-grid"></div>
       </div>
       <div class="action-row">
-        <button class="btn-primary" id="image-btn" onclick="convertToImage()">Convert to Images</button>
+        <button class="btn-primary" id="image-btn" onclick="handleImagePrimaryAction()">Convert to Images</button>
         <button class="btn-clear" onclick="clearImage()">Clear</button>
       </div>
     </div>
@@ -3132,6 +3132,7 @@
   async function handleImageFile(file) {
     imageFile = file;
     imageResults = [];
+    updateImagePrimaryButton();
     document.getElementById('image-config').style.display = 'block';
     document.getElementById('image-progress').classList.remove('show');
     document.getElementById('image-download').classList.remove('show');
@@ -3167,9 +3168,30 @@
     document.getElementById('image-output-prefix').value = '';
     document.getElementById('img-dl-btns').innerHTML = '';
     document.getElementById('img-preview-grid').innerHTML = '';
+    updateImagePrimaryButton();
   }
 
-  function downloadImageResult(index) {
+  function updateImagePrimaryButton() {
+    const btn = document.getElementById('image-btn');
+    if (!btn) return;
+    if (imageResults.length) {
+      btn.textContent = imageResults.length === 1 ? 'Download Image' : 'Download Images';
+      btn.dataset.mode = 'download';
+      return;
+    }
+    btn.textContent = 'Convert to Images';
+    btn.dataset.mode = 'convert';
+  }
+
+  function handleImagePrimaryAction() {
+    if (imageResults.length) {
+      downloadAllImageResults();
+      return;
+    }
+    convertToImage();
+  }
+
+  function downloadImageResult(index, { silent = false } = {}) {
     const item = imageResults[index];
     if (!item) {
       showToast('Converted image not found.', 'error');
@@ -3183,7 +3205,18 @@
     document.body.appendChild(a);
     a.click();
     a.remove();
-    showToast(`Page ${item.pageNum} download started.`);
+    if (!silent) showToast(`Page ${item.pageNum} download started.`);
+  }
+
+  function downloadAllImageResults() {
+    if (!imageResults.length) {
+      showToast('Please convert the PDF first.', 'error');
+      return;
+    }
+    imageResults.forEach((_, index) => {
+      window.setTimeout(() => downloadImageResult(index, { silent: true }), index * 120);
+    });
+    showToast(`${imageResults.length} image download${imageResults.length > 1 ? 's' : ''} started.`);
   }
 
   function renderImageDownloads() {
@@ -3263,12 +3296,14 @@
       document.getElementById('image-output-prefix').value = imageDefaultPrefix;
       renderImageDownloads();
       document.getElementById('image-download').classList.add('show');
+      updateImagePrimaryButton();
       showToast(`${data.images.length} page(s) converted.`);
     } catch (err) {
       showToast(err?.message || 'Error: Is the backend running?','error');
       document.getElementById('image-progress').classList.remove('show');
     }
-    btn.disabled = false; btn.textContent = 'Convert to Images';
+    btn.disabled = false;
+    updateImagePrimaryButton();
   }
 
   // ---- SCAN TO PDF ----
