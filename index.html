@@ -114,6 +114,12 @@
       gap: 12px;
       justify-content: center;
     }
+    .nav-group {
+      position: relative;
+      display: flex;
+      align-items: center;
+      flex-shrink: 0;
+    }
     .header-actions {
       display: flex;
       align-items: center;
@@ -159,8 +165,163 @@
     .icon-image { background: rgba(34,197,94,0.2); }
     .icon-library { background: rgba(56,189,248,0.2); }
     .icon-pdf { background: rgba(14,165,233,0.2); }
+    .icon-home { background: rgba(59,130,246,0.2); }
     .nav-item-text h4 { font-family: 'Space Grotesk', sans-serif; font-size: 12px; font-weight: 600; letter-spacing: 0.2px; }
     .nav-item-text p { display: none; }
+    .nav-dropdown {
+      position: absolute;
+      top: calc(100% + 12px);
+      left: 0;
+      min-width: 290px;
+      max-height: 360px;
+      overflow: auto;
+      padding: 12px;
+      border-radius: 22px;
+      border: 1px solid var(--border-strong);
+      background: color-mix(in srgb, var(--surface) 94%, white 6%);
+      box-shadow: 0 22px 56px rgba(28, 44, 70, 0.14);
+      opacity: 0;
+      visibility: hidden;
+      transform: translateY(10px);
+      pointer-events: none;
+      transition: opacity 0.18s ease, transform 0.18s ease, visibility 0.18s ease;
+      z-index: 220;
+      backdrop-filter: blur(16px);
+    }
+    .nav-dropdown::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      right: 0;
+      top: -12px;
+      height: 12px;
+    }
+    .nav-group:hover .nav-dropdown,
+    .nav-group:focus-within .nav-dropdown {
+      opacity: 1;
+      visibility: visible;
+      transform: translateY(0);
+      pointer-events: auto;
+    }
+    .nav-dropdown-title {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 1.8px;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 10px;
+      padding: 2px 6px;
+    }
+    .nav-dropdown-list {
+      display: grid;
+      gap: 8px;
+    }
+    .nav-dropdown-item {
+      appearance: none;
+      width: 100%;
+      text-align: left;
+      border: 1px solid transparent;
+      background: rgba(255,255,255,0.76);
+      border-radius: 16px;
+      padding: 12px 14px;
+      cursor: pointer;
+      transition: transform 0.18s ease, border-color 0.18s ease, background 0.18s ease;
+      color: var(--text);
+      display: grid;
+      gap: 3px;
+    }
+    .nav-dropdown-item:hover,
+    .nav-dropdown-item:focus-visible {
+      transform: translateY(-1px);
+      border-color: rgba(28,143,134,0.18);
+      background: linear-gradient(135deg, rgba(28,143,134,0.10), rgba(255,122,24,0.08));
+      outline: none;
+    }
+    .nav-dropdown-item.active {
+      border-color: rgba(28,143,134,0.22);
+      background: linear-gradient(135deg, rgba(28,143,134,0.14), rgba(255,122,24,0.10));
+    }
+    .nav-dropdown-name {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 14px;
+      font-weight: 600;
+      letter-spacing: -0.2px;
+    }
+    .nav-dropdown-meta {
+      font-size: 12px;
+      color: var(--muted);
+      line-height: 1.45;
+    }
+    .nav-dropdown::-webkit-scrollbar {
+      width: 8px;
+    }
+    .nav-dropdown::-webkit-scrollbar-thumb {
+      background: rgba(96, 113, 137, 0.35);
+      border-radius: 999px;
+    }
+
+    .is-hidden { display: none !important; }
+
+    /* HOME */
+    .home {
+      position: relative;
+      z-index: 1;
+      padding: 84px 24px 48px;
+    }
+    .home-inner {
+      max-width: 980px;
+      margin: 0 auto;
+      text-align: center;
+    }
+    .home-title {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: clamp(32px, 4.4vw, 54px);
+      font-weight: 700;
+      letter-spacing: -1.2px;
+      margin-bottom: 12px;
+    }
+    .home-subtitle {
+      color: var(--muted);
+      font-size: 16px;
+      line-height: 1.7;
+      max-width: 540px;
+      margin: 0 auto 28px;
+    }
+    .home-actions {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 16px;
+      margin-top: 20px;
+    }
+    .home-option {
+      border: 1px solid var(--border);
+      background: linear-gradient(145deg, var(--surface), var(--surface2));
+      border-radius: 18px;
+      padding: 18px 20px;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      text-align: left;
+      cursor: pointer;
+      transition: transform 0.2s ease, box-shadow 0.2s ease, border 0.2s ease;
+      box-shadow: var(--shadow);
+      color: var(--text);
+    }
+    .home-option:hover {
+      transform: translateY(-2px);
+      border-color: color-mix(in srgb, var(--accent) 45%, transparent);
+    }
+    .home-option h4 {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 14px;
+      font-weight: 600;
+      margin-bottom: 4px;
+    }
+    .home-option p {
+      color: var(--muted);
+      font-size: 12px;
+    }
 
     /* HERO */
     .hero {
@@ -241,7 +402,7 @@
     /* TOOL CARDS */
     .tool-selector {
       display: grid;
-      grid-template-columns: repeat(2, minmax(140px, 1fr));
+      grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
       gap: 12px;
     }
     .tool-card {
@@ -334,7 +495,10 @@
       display: flex;
       flex-direction: column;
       box-shadow: var(--shadow);
+      cursor: grab;
     }
+    .file-item.dragging { opacity: 0.6; cursor: grabbing; }
+    .file-item.drag-over { outline: 2px dashed color-mix(in srgb, var(--accent) 55%, transparent); }
     .file-thumb {
       height: 108px;
       border-bottom: 1px solid var(--border);
@@ -406,6 +570,92 @@
       margin-top: 16px; background: var(--surface2);
       border: 1px solid var(--border); border-radius: 14px;
       padding: 18px 20px; display: none;
+    }
+    .logo-type-row {
+      margin-top: 8px;
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+    .radio-pill {
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      padding: 6px 12px;
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--text);
+      background: var(--surface);
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.2s;
+    }
+    .radio-pill input { display: none; }
+    .radio-pill.active {
+      border-color: color-mix(in srgb, var(--accent) 45%, transparent);
+      background: var(--highlight);
+      color: var(--accent);
+    }
+    .logo-editor {
+      margin-top: 12px;
+      display: grid;
+      gap: 12px;
+    }
+    .logo-preview {
+      border: 1px dashed var(--border);
+      border-radius: 14px;
+      padding: 16px;
+      background: var(--surface);
+    }
+    .logo-page {
+      position: relative;
+      width: 180px;
+      aspect-ratio: 3 / 4;
+      margin: 0 auto;
+      border-radius: 10px;
+      background: #ffffff;
+      box-shadow: 0 10px 22px rgba(15,23,42,0.15);
+      overflow: hidden;
+    }
+    [data-theme="dark"] .logo-page { background: #f8fafc; }
+    .logo-placeholder {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #94a3b8;
+      font-size: 12px;
+    }
+    .logo-preview-img {
+      position: absolute;
+      display: none;
+      height: auto;
+    }
+    .logo-page.has-logo .logo-placeholder { display: none; }
+    .logo-page.has-logo .logo-preview-img { display: block; }
+    .logo-controls { display: grid; gap: 10px; }
+    .logo-control-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+    .logo-control-row label {
+      font-size: 12px;
+      color: var(--muted);
+      width: 90px;
+      text-transform: none;
+      margin-bottom: 0;
+      font-weight: 600;
+    }
+    .logo-control-row input[type="range"] { flex: 1; }
+    .logo-control-row span {
+      font-size: 12px;
+      color: var(--muted);
+      min-width: 44px;
+      text-align: right;
     }
     .config-box label { display: block; font-size: 12px; color: var(--muted); margin-bottom: 8px; font-weight: 600; text-transform: uppercase; letter-spacing: 1.2px; }
     .config-box input[type="number"],
@@ -493,11 +743,171 @@
       outline: none;
     }
     .rename-input:focus { border-color: var(--accent); }
+    .rename-grid {
+      display: grid;
+      gap: 12px;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    }
+    .rename-card {
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 14px;
+      background: var(--surface);
+      display: grid;
+      gap: 10px;
+    }
+    .rename-card-title {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 13px;
+      font-weight: 600;
+    }
+    .workspace-card {
+      margin-bottom: 16px;
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 18px;
+      background: linear-gradient(180deg, var(--surface), var(--surface2));
+      box-shadow: var(--shadow);
+    }
+    .workspace-title {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 22px;
+      font-weight: 700;
+      letter-spacing: -0.4px;
+      margin-bottom: 6px;
+    }
+    .workspace-desc {
+      color: var(--muted);
+      font-size: 14px;
+      line-height: 1.6;
+    }
+    .upload-preview-wrap {
+      display: none;
+      margin-top: 18px;
+    }
+    .upload-preview-wrap.show { display: block; }
+    .upload-preview-card {
+      width: 100%;
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      padding: 16px;
+      background: linear-gradient(180deg, var(--surface), var(--surface2));
+      display: grid;
+      grid-template-columns: 170px minmax(0, 1fr);
+      gap: 16px;
+      text-align: left;
+      color: var(--text);
+      cursor: pointer;
+      box-shadow: var(--shadow);
+      transition: transform 0.2s ease, border-color 0.2s ease;
+    }
+    .upload-preview-card:hover {
+      transform: translateY(-2px);
+      border-color: color-mix(in srgb, var(--accent) 45%, transparent);
+    }
+    .upload-preview-thumb {
+      aspect-ratio: 3 / 4;
+      border-radius: 14px;
+      overflow: hidden;
+      border: 1px solid var(--border);
+      background: linear-gradient(145deg, var(--surface2), var(--surface));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+    }
+    .upload-preview-thumb img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+    .upload-preview-body {
+      display: grid;
+      gap: 8px;
+      align-content: center;
+      min-width: 0;
+    }
+    .upload-preview-title {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 20px;
+      font-weight: 700;
+      letter-spacing: -0.5px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    .upload-preview-meta {
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.6;
+    }
+    .upload-preview-action {
+      color: var(--accent);
+      font-size: 13px;
+      font-weight: 700;
+      letter-spacing: 0.3px;
+    }
 
     /* IMAGE PREVIEW */
-    .img-preview-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(110px,1fr)); gap: 10px; margin-top: 14px; }
-    .img-thumb { border-radius: 10px; overflow: hidden; border: 1px solid var(--border); aspect-ratio: 3/4; background: var(--surface2); }
-    .img-thumb img { width: 100%; height: 100%; object-fit: cover; }
+    .img-preview-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px,1fr)); gap: 14px; margin-top: 14px; }
+    .img-result-card {
+      position: relative;
+      border-radius: 14px;
+      overflow: hidden;
+      border: 1px solid var(--border);
+      background: var(--surface2);
+      box-shadow: var(--shadow);
+    }
+    .img-thumb {
+      width: 100%;
+      border: 0;
+      padding: 0;
+      margin: 0;
+      display: block;
+      position: relative;
+      aspect-ratio: 3 / 4;
+      background: var(--surface2);
+      cursor: pointer;
+      overflow: hidden;
+      transition: transform 0.2s ease, border-color 0.2s ease;
+    }
+    .img-thumb:hover {
+      transform: translateY(-2px);
+      border-color: color-mix(in srgb, var(--accent) 45%, transparent);
+    }
+    .img-thumb img { width: 100%; height: 100%; object-fit: cover; display: block; }
+    .img-download-label {
+      position: absolute;
+      left: 10px;
+      right: 10px;
+      bottom: 10px;
+      border-radius: 999px;
+      padding: 9px 12px;
+      background: linear-gradient(135deg, rgba(61,214,208,0.92), rgba(245,158,11,0.96));
+      color: #0b0f17;
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 13px;
+      font-weight: 700;
+      letter-spacing: 0.2px;
+      text-align: center;
+      box-shadow: 0 12px 28px rgba(2, 6, 23, 0.28);
+    }
+    .img-preview-chip {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      z-index: 2;
+      border: 1px solid rgba(255,255,255,0.2);
+      background: rgba(15,23,42,0.72);
+      color: #f8fafc;
+      border-radius: 999px;
+      padding: 7px 10px;
+      font-size: 11px;
+      font-weight: 700;
+      cursor: pointer;
+      backdrop-filter: blur(6px);
+    }
 
     /* MISC */
     .section-label { font-family: 'Space Grotesk', sans-serif; font-size: 11px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: var(--muted); margin-bottom: 12px; }
@@ -573,6 +983,13 @@
       background: linear-gradient(180deg, var(--card), color-mix(in srgb, var(--accent) 12%, var(--card2))) padding-box,
                   linear-gradient(135deg, color-mix(in srgb, var(--accent) 70%, var(--card-border)), rgba(148,163,184,0.18)) border-box;
     }
+    .tool-tile.active {
+      transform: translateY(-4px);
+      border-color: transparent;
+      background:
+        linear-gradient(180deg, color-mix(in srgb, var(--accent) 12%, var(--card)), color-mix(in srgb, var(--accent2) 10%, var(--card2))) padding-box,
+        linear-gradient(135deg, var(--accent), var(--accent2)) border-box;
+    }
     .tool-title { font-family: 'Space Grotesk', sans-serif; font-size: 14px; font-weight: 600; }
     .tool-desc { font-size: 13px; color: var(--muted); line-height: 1.5; }
     .tool-status {
@@ -613,6 +1030,70 @@
     .toast.error { border-color: var(--danger); color: var(--danger); }
     .toast.success { border-color: var(--success); color: var(--success); }
     .toast.info { border-color: var(--accent); color: var(--accent); }
+    .preview-modal {
+      position: fixed;
+      inset: 0;
+      background: rgba(2, 6, 23, 0.78);
+      backdrop-filter: blur(10px);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+      z-index: 10000;
+    }
+    .preview-modal.show { display: flex; }
+    .preview-dialog {
+      width: min(1100px, 100%);
+      max-height: calc(100vh - 48px);
+      border-radius: 22px;
+      border: 1px solid var(--border);
+      background: linear-gradient(180deg, var(--surface), var(--surface2));
+      box-shadow: var(--shadow);
+      overflow: hidden;
+      display: grid;
+      grid-template-rows: auto minmax(0, 1fr);
+    }
+    .preview-topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      padding: 16px 18px;
+      border-bottom: 1px solid var(--border);
+    }
+    .preview-title {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 16px;
+      font-weight: 700;
+      letter-spacing: -0.3px;
+    }
+    .preview-close {
+      border: 1px solid var(--border);
+      background: var(--surface2);
+      color: var(--text);
+      border-radius: 999px;
+      padding: 9px 14px;
+      cursor: pointer;
+      font-size: 12px;
+      font-weight: 700;
+    }
+    .preview-body {
+      min-height: 0;
+      background: color-mix(in srgb, var(--bg) 86%, transparent);
+      overflow: auto;
+    }
+    .preview-frame {
+      width: 100%;
+      height: min(78vh, 920px);
+      border: 0;
+      display: block;
+      background: #ffffff;
+    }
+    .preview-image {
+      width: 100%;
+      height: auto;
+      display: block;
+    }
 
     @media (max-width: 960px) {
       header { padding: 0 24px; }
@@ -636,6 +1117,552 @@
     }
     @media (max-width: 480px) {
       .tool-selector { grid-template-columns: 1fr; }
+      .rename-grid { grid-template-columns: 1fr; }
+      .upload-preview-card { grid-template-columns: 1fr; }
+      .upload-preview-thumb { max-width: 220px; width: 100%; margin: 0 auto; }
+      .preview-dialog { max-height: calc(100vh - 24px); }
+      .preview-frame { height: 70vh; }
+    }
+    /* FRONTEND REFRESH */
+    :root,
+    [data-theme="light"] {
+      --bg: #f4f7fb;
+      --bg2: #eef3f8;
+      --surface: rgba(255,255,255,0.92);
+      --surface2: #f5f8fc;
+      --border: rgba(32, 55, 84, 0.10);
+      --border-strong: rgba(32, 55, 84, 0.14);
+      --accent: #1c8f86;
+      --accent2: #ff7a18;
+      --success: #14a44d;
+      --danger: #d94b65;
+      --text: #1a2b44;
+      --muted: #607189;
+      --highlight: rgba(28,143,134,0.10);
+      --shadow: 0 24px 70px rgba(28, 44, 70, 0.10);
+      --glass: rgba(255,255,255,0.75);
+      --card: #ffffff;
+      --card2: #f3f7fb;
+      --card-border: rgba(32, 55, 84, 0.14);
+      --card-glow: rgba(28,143,134,0.12);
+    }
+    [data-theme="dark"] {
+      --bg: #0d1626;
+      --bg2: #101b2e;
+      --surface: rgba(13, 24, 43, 0.92);
+      --surface2: #15243a;
+      --border: rgba(148,163,184,0.18);
+      --border-strong: rgba(148,163,184,0.24);
+      --accent: #56d6c4;
+      --accent2: #f4a340;
+      --success: #22c55e;
+      --danger: #f87171;
+      --text: #e8eef8;
+      --muted: #9db0c9;
+      --highlight: rgba(86,214,196,0.12);
+      --shadow: 0 28px 80px rgba(0,0,0,0.32);
+      --glass: rgba(18, 29, 49, 0.76);
+      --card: #132239;
+      --card2: #182941;
+      --card-border: rgba(148,163,184,0.24);
+      --card-glow: rgba(86,214,196,0.14);
+    }
+    body {
+      background:
+        radial-gradient(720px 420px at 8% 0%, rgba(28,143,134,0.16), transparent 58%),
+        radial-gradient(680px 420px at 100% 4%, rgba(255,122,24,0.15), transparent 52%),
+        linear-gradient(180deg, var(--bg), var(--bg2));
+      color: var(--text);
+    }
+    body::before {
+      background-image: none;
+      background:
+        radial-gradient(560px 320px at 18% 12%, rgba(255,255,255,0.8), transparent 65%),
+        radial-gradient(460px 320px at 80% 18%, rgba(255,255,255,0.45), transparent 70%);
+      opacity: 1;
+    }
+    body::after {
+      width: 620px;
+      height: 620px;
+      right: -170px;
+      bottom: -250px;
+      background: radial-gradient(circle, rgba(255,165,84,0.16), transparent 68%);
+      filter: blur(24px);
+    }
+    header {
+      width: min(1180px, calc(100% - 28px));
+      height: 76px;
+      margin: 16px auto 0;
+      top: 12px;
+      padding: 0 18px;
+      border-radius: 26px;
+      border: 1px solid var(--border-strong);
+      background: color-mix(in srgb, var(--surface) 88%, transparent);
+      box-shadow: 0 18px 50px rgba(28, 44, 70, 0.08);
+      backdrop-filter: blur(18px);
+      overflow: visible;
+    }
+    .logo {
+      font-size: 24px;
+      color: var(--text);
+      letter-spacing: -0.8px;
+    }
+    .logo span {
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    .header-nav {
+      gap: 8px;
+      justify-content: center;
+      overflow: visible;
+    }
+    .nav-item {
+      padding: 10px 14px;
+      border-radius: 18px;
+      border: 1px solid transparent;
+      background: transparent;
+    }
+    .nav-item:hover {
+      background: color-mix(in srgb, var(--surface) 82%, white 18%);
+      transform: translateY(-1px);
+      box-shadow: 0 12px 30px rgba(28, 44, 70, 0.06);
+    }
+    .nav-item.active {
+      background: linear-gradient(135deg, rgba(28,143,134,0.12), rgba(255,122,24,0.08));
+      border-color: rgba(28,143,134,0.16);
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.75);
+    }
+    .nav-item-icon {
+      width: 34px;
+      height: 34px;
+      border-radius: 12px;
+      border: 1px solid rgba(255,255,255,0.55);
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.55);
+      font-weight: 700;
+    }
+    .theme-toggle {
+      padding: 10px 16px;
+      border-radius: 16px;
+      border: 1px solid var(--border-strong);
+      background: color-mix(in srgb, var(--surface) 86%, white 14%);
+      box-shadow: 0 12px 28px rgba(28, 44, 70, 0.08);
+    }
+    .home {
+      padding: 92px 20px 18px;
+    }
+    .home-inner {
+      max-width: 1180px;
+      border-radius: 38px;
+      padding: 58px 48px;
+      background: color-mix(in srgb, var(--surface) 90%, white 10%);
+      border: 1px solid var(--border-strong);
+      box-shadow: var(--shadow);
+    }
+    .home-title {
+      font-size: clamp(38px, 5vw, 68px);
+      letter-spacing: -1.6px;
+      color: var(--text);
+    }
+    .home-subtitle {
+      max-width: 620px;
+      font-size: 17px;
+      color: var(--muted);
+    }
+    .home-actions {
+      gap: 18px;
+      margin-top: 28px;
+    }
+    .home-option {
+      padding: 22px 22px;
+      border-radius: 24px;
+      border: 1px solid var(--border-strong);
+      background: linear-gradient(180deg, rgba(255,255,255,0.92), rgba(245,248,252,0.92));
+      box-shadow: 0 16px 40px rgba(28, 44, 70, 0.07);
+    }
+    .home-option:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 20px 48px rgba(28, 44, 70, 0.10);
+    }
+    .home-option .nav-item-icon {
+      width: 42px;
+      height: 42px;
+      font-size: 14px;
+      border-radius: 14px;
+    }
+    .hero {
+      padding: 18px 20px 12px;
+    }
+    .hero-inner {
+      max-width: 1180px;
+      gap: 34px;
+      padding: 44px;
+      border-radius: 38px;
+      background: color-mix(in srgb, var(--surface) 90%, white 10%);
+      border: 1px solid var(--border-strong);
+      box-shadow: var(--shadow);
+      align-items: stretch;
+    }
+    .tool-badge,
+    .meta-pill {
+      border-color: var(--border-strong);
+      background: rgba(255,255,255,0.72);
+      box-shadow: none;
+    }
+    .hero h1 {
+      color: var(--text);
+      font-size: clamp(40px, 5.2vw, 70px);
+      line-height: 0.98;
+      letter-spacing: -1.8px;
+    }
+    .hero p {
+      max-width: 580px;
+      font-size: 17px;
+      line-height: 1.8;
+    }
+    .hero-panel {
+      border-radius: 28px;
+      padding: 24px;
+      background: linear-gradient(180deg, rgba(255,255,255,0.96), rgba(244,248,252,0.96));
+      border: 1px solid var(--border-strong);
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.72);
+    }
+    .hero-panel-title,
+    .section-label {
+      color: #5f7088;
+      letter-spacing: 2.2px;
+    }
+    .tool-selector {
+      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      gap: 14px;
+    }
+    .tool-card {
+      padding: 18px;
+      border-radius: 22px;
+      border: 1px solid var(--border-strong);
+      background: linear-gradient(180deg, rgba(255,255,255,0.94), rgba(246,249,252,0.96));
+      box-shadow: 0 14px 32px rgba(28, 44, 70, 0.06);
+    }
+    .tool-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 18px 36px rgba(28, 44, 70, 0.08);
+    }
+    .tool-card.active {
+      background:
+        linear-gradient(180deg, rgba(255,255,255,0.98), rgba(247,252,252,0.96)) padding-box,
+        linear-gradient(135deg, var(--accent), var(--accent2)) border-box;
+      box-shadow: 0 18px 40px rgba(28, 44, 70, 0.10);
+    }
+    .tool-card-icon {
+      width: 40px;
+      height: 40px;
+      border-radius: 14px;
+      background: rgba(255,255,255,0.86);
+      border: 1px solid var(--border-strong);
+      color: var(--text);
+    }
+    .tools-library {
+      max-width: 1180px;
+      margin: 18px auto 0;
+      padding: 0 20px;
+    }
+    .tools-search {
+      padding: 14px 16px;
+      border-radius: 24px;
+      border: 1px solid var(--border-strong);
+      background: color-mix(in srgb, var(--surface) 90%, white 10%);
+      box-shadow: 0 16px 42px rgba(28, 44, 70, 0.08);
+    }
+    .tools-input {
+      border-radius: 16px;
+      border-color: var(--border-strong);
+      background: #ffffff;
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.85);
+    }
+    .tool-tile {
+      min-height: 156px;
+      padding: 22px;
+      border-radius: 24px;
+      background: linear-gradient(180deg, rgba(255,255,255,0.96), rgba(244,248,252,0.96)) padding-box,
+                  linear-gradient(135deg, var(--card-border), rgba(255,255,255,0.6)) border-box;
+      box-shadow: 0 18px 42px rgba(28, 44, 70, 0.08);
+    }
+    .tool-tile:hover,
+    .tool-tile.active {
+      transform: translateY(-4px);
+      box-shadow: 0 20px 44px rgba(28, 44, 70, 0.10);
+    }
+    .tool-tile.available {
+      background: linear-gradient(180deg, rgba(255,255,255,0.98), rgba(243,248,251,0.96)) padding-box,
+                  linear-gradient(135deg, rgba(28,143,134,0.16), rgba(255,122,24,0.12)) border-box;
+    }
+    .tool-tile.active {
+      background:
+        linear-gradient(180deg, rgba(255,255,255,0.98), rgba(245,251,251,0.98)) padding-box,
+        linear-gradient(135deg, var(--accent), var(--accent2)) border-box;
+    }
+    .container {
+      max-width: 1180px;
+      margin: 18px auto 64px;
+      padding: 0 20px;
+    }
+    .card {
+      border-radius: 34px;
+      padding: 36px;
+      border: 1px solid var(--border-strong);
+      background: color-mix(in srgb, var(--surface) 92%, white 8%);
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(14px);
+    }
+    .dropzone {
+      border-radius: 30px;
+      border: 1px dashed rgba(28,143,134,0.34);
+      background: linear-gradient(180deg, rgba(252,253,255,0.98), rgba(244,248,252,0.98));
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.84);
+      padding: 52px 26px;
+    }
+    .dropzone:hover,
+    .dropzone.dragover {
+      background: linear-gradient(180deg, rgba(247,251,252,1), rgba(240,247,250,1));
+      border-color: rgba(28,143,134,0.52);
+    }
+    .drop-icon {
+      font-size: 54px;
+      font-weight: 500;
+      letter-spacing: -2px;
+      color: var(--text);
+    }
+    .dropzone h3 {
+      font-size: 18px;
+      color: var(--text);
+    }
+    .dropzone p {
+      font-size: 15px;
+      color: var(--muted);
+    }
+    .file-list {
+      gap: 14px;
+    }
+    .file-item {
+      border-radius: 20px;
+      border: 1px solid var(--border-strong);
+      background: linear-gradient(180deg, rgba(255,255,255,0.96), rgba(245,248,252,0.96));
+      box-shadow: 0 14px 34px rgba(28, 44, 70, 0.06);
+    }
+    .file-thumb {
+      height: 132px;
+      background: linear-gradient(180deg, #fbfdff, #eef4f8);
+      border-bottom: 1px solid var(--border);
+    }
+    .file-type-chip {
+      background: rgba(255,255,255,0.92);
+      color: #485a73;
+      border: 1px solid rgba(32, 55, 84, 0.12);
+    }
+    .file-icon {
+      background: rgba(255,255,255,0.94);
+      border-color: rgba(32, 55, 84, 0.10);
+      color: var(--text);
+    }
+    .preview-btn,
+    .remove-btn {
+      background: rgba(255,255,255,0.86);
+      border-color: var(--border-strong);
+    }
+    .config-box,
+    .workspace-card,
+    .rename-card,
+    .upload-preview-card {
+      border-radius: 26px;
+      border: 1px solid var(--border-strong);
+      background: linear-gradient(180deg, rgba(248,251,253,0.98), rgba(242,246,250,0.98));
+      box-shadow: 0 14px 36px rgba(28, 44, 70, 0.05);
+    }
+    .config-box {
+      padding: 24px;
+    }
+    .config-box input[type="number"],
+    .config-box input[type="text"],
+    .config-box input[type="password"],
+    .config-box select,
+    .rename-input {
+      background: rgba(255,255,255,0.96);
+      border-color: var(--border-strong);
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.9);
+    }
+    .divider {
+      border-top: 1px solid rgba(32, 55, 84, 0.10);
+    }
+    .progress-wrap {
+      padding: 18px 20px;
+      border-radius: 22px;
+      border: 1px solid var(--border-strong);
+      background: rgba(255,255,255,0.9);
+      box-shadow: 0 12px 30px rgba(28, 44, 70, 0.05);
+    }
+    .progress-label {
+      font-weight: 700;
+      margin-bottom: 10px;
+    }
+    .progress-bar-bg {
+      height: 10px;
+      background: #e3ebf2;
+    }
+    .progress-bar {
+      background: linear-gradient(90deg, var(--accent), var(--accent2));
+    }
+    .download-box {
+      border-radius: 26px;
+      padding: 22px;
+      background: linear-gradient(180deg, rgba(239,250,244,0.96), rgba(248,252,246,0.96));
+      border: 1px solid rgba(20,164,77,0.18);
+      box-shadow: 0 14px 38px rgba(20, 164, 77, 0.08);
+    }
+    .dl-title {
+      font-size: 15px;
+    }
+    .btn-primary {
+      min-height: 58px;
+      border-radius: 999px;
+      background: linear-gradient(90deg, var(--accent), var(--accent2));
+      color: #132239;
+      box-shadow: 0 18px 42px rgba(255,122,24,0.22);
+    }
+    .btn-primary:hover {
+      box-shadow: 0 22px 48px rgba(255,122,24,0.26);
+    }
+    .btn-clear {
+      min-height: 54px;
+      padding: 0 22px;
+      border-radius: 999px;
+      border-color: var(--border-strong);
+      background: rgba(255,255,255,0.82);
+    }
+    .btn-download {
+      background: linear-gradient(135deg, #16a34a, #0f9d58);
+      box-shadow: 0 12px 28px rgba(15, 157, 88, 0.16);
+    }
+    .upload-preview-card {
+      padding: 18px;
+    }
+    .upload-preview-thumb {
+      border-radius: 18px;
+      border-color: var(--border-strong);
+      background: linear-gradient(180deg, #ffffff, #eef4f8);
+    }
+    .img-result-card {
+      border-radius: 20px;
+      border-color: var(--border-strong);
+      background: linear-gradient(180deg, rgba(255,255,255,0.98), rgba(244,248,252,0.96));
+    }
+    .img-download-label {
+      background: rgba(255,255,255,0.94);
+      color: var(--text);
+      box-shadow: 0 14px 28px rgba(28, 44, 70, 0.10);
+    }
+    .img-preview-chip {
+      border-color: rgba(255,255,255,0.65);
+      background: rgba(255,255,255,0.88);
+      color: var(--text);
+    }
+    .toast {
+      background: rgba(255,255,255,0.92);
+      border-color: var(--border-strong);
+      color: var(--text);
+      border-radius: 18px;
+      box-shadow: 0 18px 42px rgba(28, 44, 70, 0.12);
+    }
+    .preview-modal {
+      background: rgba(232, 239, 247, 0.68);
+      backdrop-filter: blur(14px);
+    }
+    .preview-dialog {
+      border-radius: 30px;
+      border: 1px solid var(--border-strong);
+      background: color-mix(in srgb, var(--surface) 95%, white 5%);
+      box-shadow: 0 24px 70px rgba(28, 44, 70, 0.14);
+    }
+    body.tool-focus .container {
+      margin-top: 28px;
+    }
+    body.tool-focus .card {
+      max-width: 1040px;
+      margin: 0 auto;
+    }
+    .preview-topbar {
+      padding: 18px 20px;
+    }
+    .preview-close {
+      border-radius: 999px;
+      border-color: var(--border-strong);
+      background: rgba(255,255,255,0.88);
+    }
+    @media (max-width: 960px) {
+      header {
+        width: calc(100% - 20px);
+        height: auto;
+        padding: 14px;
+        grid-template-columns: 1fr;
+        gap: 12px;
+      }
+      .header-nav {
+        justify-content: flex-start;
+        overflow-x: auto;
+        overflow-y: visible;
+        padding-bottom: 2px;
+      }
+      .nav-dropdown {
+        left: 0;
+        min-width: 260px;
+      }
+      .home,
+      .hero,
+      .tools-library,
+      .container {
+        padding-left: 14px;
+        padding-right: 14px;
+      }
+      .home-inner,
+      .hero-inner,
+      .card {
+        padding: 28px;
+        border-radius: 28px;
+      }
+    }
+    @media (max-width: 720px) {
+      .home-title,
+      .hero h1 {
+        font-size: clamp(32px, 10vw, 46px);
+      }
+      .home-option,
+      .tool-card,
+      .tool-tile {
+        border-radius: 20px;
+      }
+      .dropzone {
+        padding: 38px 18px;
+        border-radius: 24px;
+      }
+      .action-row {
+        flex-direction: column;
+      }
+      .btn-primary,
+      .btn-clear {
+        width: 100%;
+      }
+    }
+    @media (max-width: 560px) {
+      .nav-item {
+        padding: 10px 12px;
+      }
+      .hero-inner,
+      .home-inner,
+      .card {
+        padding: 22px 18px;
+      }
+      .tools-search {
+        padding: 12px;
+      }
     }
     @media (prefers-reduced-motion: reduce) {
       * { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; transition-duration: 0.01ms !important; }
@@ -647,33 +1674,77 @@
 
 <!-- HEADER -->
 <header>
-  <div class="logo" onclick="location.reload()">PDF<span>Forge</span></div>
+  <div class="logo" onclick="openHome()">PDF<span>Forge</span></div>
   <nav class="header-nav" aria-label="Primary">
-    <button class="nav-item" id="nav-image" type="button" onclick="openImageTools()">
-      <div class="nav-item-icon icon-image">I</div>
-      <div class="nav-item-text"><h4>Image Tools</h4><p>Convert PDF pages to images</p></div>
-    </button>
-    <button class="nav-item active" id="nav-pdf" type="button" onclick="openPdfTools()">
-      <div class="nav-item-icon icon-pdf">P</div>
-      <div class="nav-item-text"><h4>PDF Tools</h4><p>Merge, split, edit, secure</p></div>
-    </button>
-    <button class="nav-item" id="nav-library" type="button" onclick="openAllTools()">
-      <div class="nav-item-icon icon-library">A</div>
-      <div class="nav-item-text"><h4>All Tools</h4><p>Browse full tool library</p></div>
-    </button>
+    <div class="nav-group">
+      <button class="nav-item active" id="nav-home" type="button" onclick="openHome()">
+        <div class="nav-item-icon icon-home">H</div>
+        <div class="nav-item-text"><h4>Home</h4><p>Start here</p></div>
+      </button>
+    </div>
+    <div class="nav-group">
+      <button class="nav-item" id="nav-image" type="button" onclick="openImageTools()">
+        <div class="nav-item-icon icon-image">I</div>
+        <div class="nav-item-text"><h4>Image Tools</h4><p>Convert PDF pages to images</p></div>
+      </button>
+      <div class="nav-dropdown" id="nav-image-menu" aria-label="Image tools"></div>
+    </div>
+    <div class="nav-group">
+      <button class="nav-item" id="nav-pdf" type="button" onclick="openPdfTools()">
+        <div class="nav-item-icon icon-pdf">P</div>
+        <div class="nav-item-text"><h4>PDF Tools</h4><p>Merge, split, edit, secure</p></div>
+      </button>
+      <div class="nav-dropdown" id="nav-pdf-menu" aria-label="PDF tools"></div>
+    </div>
+    <div class="nav-group">
+      <button class="nav-item" id="nav-library" type="button" onclick="openAllTools()">
+        <div class="nav-item-icon icon-library">A</div>
+        <div class="nav-item-text"><h4>All Tools</h4><p>Browse full tool library</p></div>
+      </button>
+      <div class="nav-dropdown" id="nav-all-menu" aria-label="All tools"></div>
+    </div>
   </nav>
   <div class="header-actions">
-    <button class="theme-toggle" id="theme-toggle" type="button" onclick="toggleTheme()">Dark</button>
+    <button class="theme-toggle" id="theme-toggle" type="button" onclick="toggleTheme()">Dark Mode</button>
   </div>
 </header>
 
+<!-- HOME -->
+<section class="home" id="home">
+  <div class="home-inner">
+    <p class="section-label">Welcome</p>
+    <h1 class="home-title">Welcome to PDFForge</h1>
+    <p class="home-subtitle">Choose a tool group to get started.</p>
+    <div class="home-actions">
+      <button class="home-option" type="button" onclick="openImageTools()">
+        <div class="nav-item-icon icon-image">I</div>
+        <div>
+          <h4>Image Tools</h4>
+        </div>
+      </button>
+      <button class="home-option" type="button" onclick="openPdfTools()">
+        <div class="nav-item-icon icon-pdf">P</div>
+        <div>
+          <h4>PDF Tools</h4>
+        </div>
+      </button>
+      <button class="home-option" type="button" onclick="openAllTools()">
+        <div class="nav-item-icon icon-library">A</div>
+        <div>
+          <h4>All Tools</h4>
+        </div>
+      </button>
+    </div>
+  </div>
+</section>
+
 <!-- HERO -->
-<div class="hero">
+<div class="hero is-hidden">
   <div class="hero-inner">
     <div class="hero-copy">
       <div class="tool-badge"><div class="dot"></div><span id="hero-badge">Merge Files</span></div>
       <h1 id="hero-title">Merge Files<br><span class="grad">Like A Pro</span></h1>
-      <p id="hero-desc">Add PDF, images, Office files, and HTML. Preview files, click Finish, then rename and download.</p>
+      <p id="hero-desc">Add PDF, images, and HTML. Preview files, click Finish, then rename and download.</p>
       <div class="hero-meta">
         <span class="meta-pill">Merge</span>
         <span class="meta-pill">Split</span>
@@ -684,19 +1755,23 @@
     <div class="hero-panel">
       <div class="hero-panel-title">Quick Tools</div>
       <div class="tool-selector">
-        <div class="tool-card active" id="card-merge" onclick="selectTool('merge')">
+        <div class="tool-card active" id="card-merge" onclick="openFocusedPanel('merge', 'pdf')">
           <span class="tool-card-icon">M</span>
-          <h3>Merge Files</h3><p>PDF, image, Office, HTML</p>
+          <h3>Merge Files</h3><p>PDF, image, HTML</p>
         </div>
-        <div class="tool-card" id="card-split" onclick="selectTool('split')">
+        <div class="tool-card" id="card-split" onclick="openFocusedPanel('split', 'pdf')">
           <span class="tool-card-icon">S</span>
           <h3>Split PDF</h3><p>Split at any page</p>
         </div>
-        <div class="tool-card" id="card-image" onclick="selectTool('image')">
+        <div class="tool-card" id="card-image" onclick="openFocusedPanel('image', 'image')">
           <span class="tool-card-icon">I</span>
           <h3>PDF to Image</h3><p>High quality export</p>
         </div>
-        <div class="tool-card" id="card-more" onclick="selectTool('more')">
+        <div class="tool-card" id="card-scan" onclick="openFocusedPanel('scan', 'image')">
+          <span class="tool-card-icon">C</span>
+          <h3>Scan to PDF</h3><p>Images into one PDF</p>
+        </div>
+        <div class="tool-card" id="card-more" onclick="openFocusedPanel('more', 'pdf')">
           <span class="tool-card-icon">E</span>
           <h3>Edit & Secure</h3><p>Organize, rotate, protect</p>
         </div>
@@ -707,27 +1782,27 @@
 </div>
 
 <!-- TOOLS LIBRARY -->
-<div class="tools-library" id="tools-library">
+<div class="tools-library is-hidden" id="tools-library">
   <p class="section-label" id="tools-library-title">All Tools</p>
   <div class="tools-search">
-    <input class="tools-input" id="tools-search" type="text" placeholder="Search tools (e.g., OCR, JPG, Rotate)" />
+    <input class="tools-input" id="tools-search" type="text" placeholder="Search tools (e.g., JPG, Rotate)" />
     <span class="tools-count" id="tools-count"></span>
   </div>
   <div id="tools-grid"></div>
-  <div class="tool-hint">Some tools need extra components (LibreOffice, Tesseract). If missing, the tool will show an error.</div>
+  <div class="tool-hint">Some tools may need extra components. If missing, the tool will show an error.</div>
 </div>
 
 <!-- MAIN -->
-<div class="container">
+<div class="container is-hidden">
   <div class="card">
 
     <!-- MERGE PANEL -->
     <div class="panel active" id="panel-merge">
       <p class="section-label">Upload Files</p>
       <div class="dropzone" id="merge-dropzone">
-        <input type="file" id="merge-input" multiple accept=".pdf,.png,.jpg,.jpeg,.webp,.doc,.docx,.ppt,.pptx,.xls,.xlsx,.html,.htm" />
+        <input type="file" id="merge-input" multiple accept=".pdf,.png,.jpg,.jpeg,.webp,.html,.htm,.docx,.pptx,.xlsx,.txt,.md,.csv,.json" />
         <span class="drop-icon">+</span>
-        <h3>Drag & Drop PDF, images, Office, or HTML files here</h3>
+        <h3>Drag & Drop PDF, image, office, or text files here</h3>
         <p>or <span>browse files</span> from your computer for live preview cards</p>
       </div>
       <div class="file-list" id="merge-file-list"></div>
@@ -770,10 +1845,18 @@
         <div class="progress-bar-bg"><div class="progress-bar" id="split-bar"></div></div>
       </div>
       <div class="download-box" id="split-download">
-        <p class="dl-title">Split complete. Download your files below.</p>
-        <div class="dl-btns">
-          <a class="btn-download" id="split-dl1" href="#" download="part1.pdf">Download Part 1</a>
-          <a class="btn-download purple" id="split-dl2" href="#" download="part2.pdf">Download Part 2</a>
+        <p class="dl-title">Split complete. Rename each file if needed, then download.</p>
+        <div class="rename-grid">
+          <div class="rename-card">
+            <div class="rename-card-title">Part 1</div>
+            <input id="split-name-1" class="rename-input" type="text" placeholder="part-1" />
+            <button class="btn-download" type="button" onclick="downloadSplitPart(1)">Download Part 1</button>
+          </div>
+          <div class="rename-card">
+            <div class="rename-card-title">Part 2</div>
+            <input id="split-name-2" class="rename-input" type="text" placeholder="part-2" />
+            <button class="btn-download purple" type="button" onclick="downloadSplitPart(2)">Download Part 2</button>
+          </div>
         </div>
       </div>
       <div class="action-row">
@@ -790,6 +1873,19 @@
         <span class="drop-icon">IMG</span>
         <h3>Drag & Drop a PDF file here</h3>
         <p>or <span>browse file</span> from your computer</p>
+      </div>
+      <div class="upload-preview-wrap" id="image-upload-preview">
+        <button class="upload-preview-card" id="image-preview-card" type="button" onclick="openImageSourcePreview()">
+          <div class="upload-preview-thumb" id="image-preview-thumb">
+            <span class="file-icon">PDF</span>
+          </div>
+          <div class="upload-preview-body">
+            <div class="section-label" style="margin-bottom:0">Live Preview</div>
+            <div class="upload-preview-title" id="image-preview-name">Selected PDF</div>
+            <div class="upload-preview-meta" id="image-preview-meta">First page preview will appear here.</div>
+            <div class="upload-preview-action">Click to open full view</div>
+          </div>
+        </button>
       </div>
       <div class="config-box" id="image-config">
         <label>Output Image Format:</label>
@@ -822,13 +1918,44 @@
         <div class="progress-bar-bg"><div class="progress-bar" id="image-bar"></div></div>
       </div>
       <div class="download-box" id="image-download">
-        <p class="dl-title">Conversion complete. Download your images.</p>
+        <p class="dl-title">Conversion complete. Set a filename prefix, then use each cover card to download.</p>
+        <div class="rename-row" style="margin-bottom:12px">
+          <input id="image-output-prefix" class="rename-input" type="text" placeholder="pdf-page" oninput="renderImageDownloads()" />
+        </div>
         <div class="dl-btns" id="img-dl-btns"></div>
         <div class="img-preview-grid" id="img-preview-grid"></div>
       </div>
       <div class="action-row">
         <button class="btn-primary" id="image-btn" onclick="convertToImage()">Convert to Images</button>
         <button class="btn-clear" onclick="clearImage()">Clear</button>
+      </div>
+    </div>
+
+    <!-- SCAN TO PDF PANEL -->
+    <div class="panel" id="panel-scan">
+      <p class="section-label">Upload Images</p>
+      <div class="dropzone" id="scan-dropzone">
+        <input type="file" id="scan-input" multiple accept=".png,.jpg,.jpeg,.webp" />
+        <span class="drop-icon">SCAN</span>
+        <h3>Drag & Drop scanned images here</h3>
+        <p>or <span>browse images</span> to combine them into one PDF</p>
+      </div>
+      <div class="file-list" id="scan-file-list"></div>
+      <hr class="divider" />
+      <div class="progress-wrap" id="scan-progress">
+        <div class="progress-label"><span>Building scan PDF...</span><span id="scan-pct">0%</span></div>
+        <div class="progress-bar-bg"><div class="progress-bar" id="scan-bar"></div></div>
+      </div>
+      <div class="download-box" id="scan-download">
+        <p class="dl-title">Scan PDF ready. Rename if needed, then download.</p>
+        <div class="rename-row">
+          <input id="scan-output-name" class="rename-input" type="text" placeholder="scan-document" />
+          <button class="btn-download" type="button" onclick="downloadScan()">Download PDF</button>
+        </div>
+      </div>
+      <div class="action-row">
+        <button class="btn-primary" id="scan-btn" onclick="prepareScan()">Create Scan PDF</button>
+        <button class="btn-clear" onclick="clearScan()">Clear</button>
       </div>
     </div>
 
@@ -842,6 +1969,11 @@
         <p>or <span>browse file</span> from your computer</p>
       </div>
       <div class="config-box" id="more-config">
+        <div class="workspace-card">
+          <div class="section-label">Selected Tool</div>
+          <div class="workspace-title" id="more-workspace-title">Remove Pages</div>
+          <div class="workspace-desc" id="more-workspace-desc">Remove the listed pages from the PDF.</div>
+        </div>
         <label>Choose tool:</label>
         <select id="more-tool" onchange="updateMoreToolUI()">
           <option value="remove">Remove Pages</option>
@@ -850,20 +1982,19 @@
           <option value="rotate">Rotate PDF</option>
           <option value="crop">Crop PDF</option>
           <option value="page_numbers">Add Page Numbers</option>
-          <option value="watermark">Add Watermark</option>
+          <option value="watermark">Add Logo</option>
           <option value="sign">Sign PDF</option>
           <option value="redact">Redact PDF</option>
           <option value="compress">Compress PDF</option>
           <option value="optimize">Optimize PDF</option>
           <option value="repair">Repair PDF</option>
-          <option value="ocr">OCR PDF</option>
-          <option value="pdfa">PDF to PDF/A</option>
           <option value="pdf_to_word">PDF to WORD</option>
           <option value="pdf_to_ppt">PDF to POWERPOINT</option>
           <option value="pdf_to_excel">PDF to EXCEL</option>
           <option value="translate">Translate PDF</option>
           <option value="compare">Compare PDF</option>
           <option value="intelligence">PDF Intelligence</option>
+          <option value="summary">Summarize PDF</option>
           <option value="protect">Protect PDF</option>
           <option value="unlock">Unlock PDF</option>
         </select>
@@ -923,11 +2054,65 @@
         </div>
 
         <div id="more-watermark-row" style="margin-top:14px; display:none">
-          <label>Watermark text:</label>
-          <input type="text" id="watermark-text" placeholder="CONFIDENTIAL" />
-          <div style="display:flex; gap:10px; flex-wrap:wrap; align-items:center; margin-top:8px">
-            <input type="number" id="watermark-opacity" min="0.1" max="1" step="0.1" value="0.2" style="width:110px" placeholder="Opacity" />
-            <input type="number" id="watermark-angle" min="-90" max="90" step="5" value="35" style="width:110px" placeholder="Angle" />
+          <label>Logo type:</label>
+          <div class="logo-type-row">
+            <label class="radio-pill" id="logo-type-text-label">
+              <input type="radio" name="logo-type" value="text" checked />
+              <span>Add Text Logo</span>
+            </label>
+            <label class="radio-pill" id="logo-type-custom-label">
+              <input type="radio" name="logo-type" value="custom" />
+              <span>Add Custom Logo</span>
+            </label>
+          </div>
+
+          <div id="watermark-text-fields" style="margin-top:14px">
+            <label>Text logo:</label>
+            <input type="text" id="watermark-text" placeholder="CONFIDENTIAL" />
+            <div style="display:flex; gap:10px; flex-wrap:wrap; align-items:center; margin-top:8px">
+              <input type="number" id="watermark-opacity" min="0.1" max="1" step="0.1" value="0.2" style="width:110px" placeholder="Opacity" />
+              <input type="number" id="watermark-angle" min="-90" max="90" step="5" value="35" style="width:110px" placeholder="Angle" />
+            </div>
+          </div>
+
+          <div id="watermark-custom-fields" style="margin-top:14px; display:none">
+            <label>Upload logo:</label>
+            <input type="file" id="logo-file" accept="image/*" />
+            <div class="logo-editor">
+              <div class="logo-preview">
+                <div class="logo-page" id="logo-page">
+                  <span class="logo-placeholder">Logo preview</span>
+                  <img id="logo-preview-img" class="logo-preview-img" alt="Logo preview" />
+                </div>
+              </div>
+              <div class="logo-controls">
+                <div class="logo-control-row">
+                  <label>Size</label>
+                  <input type="range" id="logo-scale" min="0.05" max="0.6" step="0.05" value="0.2" />
+                  <span id="logo-scale-val">20%</span>
+                </div>
+                <div class="logo-control-row">
+                  <label>Opacity</label>
+                  <input type="range" id="logo-opacity" min="0.1" max="1" step="0.05" value="0.8" />
+                  <span id="logo-opacity-val">0.8</span>
+                </div>
+                <div class="logo-control-row">
+                  <label>Position</label>
+                  <select id="logo-position">
+                    <option value="bottom-right">Bottom Right</option>
+                    <option value="bottom-left">Bottom Left</option>
+                    <option value="top-right">Top Right</option>
+                    <option value="top-left">Top Left</option>
+                    <option value="center">Center</option>
+                  </select>
+                </div>
+                <div class="logo-control-row">
+                  <label>Rotation</label>
+                  <input type="range" id="logo-rotate" min="-180" max="180" step="5" value="0" />
+                  <span id="logo-rotate-val">0°</span>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
 
@@ -941,11 +2126,6 @@
           <input type="text" id="redact-text" placeholder="Sensitive text" />
         </div>
 
-        <div id="more-ocr-row" style="margin-top:14px; display:none">
-          <label>OCR language (Tesseract code):</label>
-          <input type="text" id="ocr-lang" value="eng" placeholder="eng" />
-        </div>
-
         <div id="more-translate-row" style="margin-top:14px; display:none">
           <label>Target language code:</label>
           <input type="text" id="translate-lang" value="en" placeholder="en" />
@@ -957,6 +2137,12 @@
           <p class="config-hint">Upload the second file to compare against.</p>
         </div>
 
+        <div id="more-summary-row" style="margin-top:14px; display:none">
+          <label>Summary sentences:</label>
+          <input type="number" id="summary-sentences" min="3" max="12" value="5" />
+          <p class="config-hint">Choose how many key summary sentences to include.</p>
+        </div>
+
         <p class="config-hint" id="more-hint" style="margin-top:12px"></p>
       </div>
 
@@ -966,10 +2152,12 @@
         <div class="progress-bar-bg"><div class="progress-bar" id="more-bar"></div></div>
       </div>
       <div class="download-box" id="more-download">
-        <p class="dl-title">File ready. Download your PDF.</p>
-        <div class="dl-btns">
-          <a class="btn-download" id="more-download-link" href="#" download="output.pdf">Download PDF</a>
+        <p class="dl-title" id="more-download-title">File ready. Rename it if needed, then download.</p>
+        <div class="rename-row">
+          <input id="more-output-name" class="rename-input" type="text" placeholder="output-file" />
+          <button class="btn-download" id="more-download-button" type="button" onclick="downloadMore()">Download File</button>
         </div>
+        <p class="config-hint" id="more-output-hint">The correct file extension will be added automatically.</p>
       </div>
       <div class="action-row">
         <button class="btn-primary" id="more-btn" onclick="runMoreTool()">Run Tool</button>
@@ -981,6 +2169,15 @@
 </div>
 
 <div class="toast" id="toast"></div>
+<div class="preview-modal" id="preview-modal" onclick="handlePreviewBackdrop(event)">
+  <div class="preview-dialog">
+    <div class="preview-topbar">
+      <div class="preview-title" id="preview-modal-title">Preview</div>
+      <button class="preview-close" type="button" onclick="closePreviewModal()">Close</button>
+    </div>
+    <div class="preview-body" id="preview-modal-body"></div>
+  </div>
+</div>
 
 <script>
   const API = "http://localhost:8001";
@@ -988,10 +2185,24 @@
   let mergeOutputUrl = null;
   let mergeDefaultName = 'merged-file';
   let splitFile = null, splitTotalPages = 0;
+  let splitPart1Url = null, splitPart2Url = null;
+  let splitDefaultName1 = 'part-1', splitDefaultName2 = 'part-2';
   let imageFile = null, imageTotalPages = 0;
+  let imageResults = [];
+  let imageDefaultPrefix = 'pdf-page';
+  let previewModalUrl = null;
+  let previewModalNeedsRevoke = false;
+  let scanFiles = [];
+  let scanOutputUrl = null;
+  let scanDefaultName = 'scan-document';
   let moreFile = null, moreOutputUrl = null, compareFile = null;
+  let moreOutputExt = 'pdf';
+  let moreDefaultName = 'output-file';
+  let logoFile = null, logoPreviewUrl = null;
   let libraryFilter = 'pdf';
-  const MERGE_ALLOWED_EXTS = ['pdf', 'png', 'jpg', 'jpeg', 'webp', 'doc', 'docx', 'ppt', 'pptx', 'xls', 'xlsx', 'html', 'htm'];
+  let activeLibraryToolId = null;
+  const MERGE_ALLOWED_EXTS = ['pdf', 'png', 'jpg', 'jpeg', 'webp', 'html', 'htm', 'docx', 'pptx', 'xlsx', 'txt', 'md', 'csv', 'json'];
+  const SCAN_ALLOWED_EXTS = ['png', 'jpg', 'jpeg', 'webp'];
 
   // Initialize PDF.js
   pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
@@ -1031,9 +2242,10 @@
   }
 
   const heroContent = {
-    merge: { badge:'Merge Files', title:'Merge Files<br><span class="grad">Like A Pro</span>', desc:'Add PDF, images, Office files, and HTML. Preview files, click Finish, then rename and download.' },
+    merge: { badge:'Merge Files', title:'Merge Files<br><span class="grad">Like A Pro</span>', desc:'Add PDF, images, and HTML. Preview files, click Finish, then rename and download.' },
     split: { badge:'Split PDF', title:'Split PDFs<br><span class="grad">at Any Page</span>', desc:'Divide a PDF into two parts exactly where you need. Fast and accurate.' },
     image: { badge:'PDF to Image', title:'Convert PDFs<br><span class="grad">to High Quality Images</span>', desc:'Export every page as PNG, JPEG or WebP. Up to 600 DPI resolution.' },
+    scan: { badge:'Scan to PDF', title:'Build Scan PDFs<br><span class="grad">from Images</span>', desc:'Upload images in order, then rename and download a clean scan PDF.' },
     more: { badge:'Edit & Secure', title:'Edit, Rotate<br><span class="grad">and Protect PDFs</span>', desc:'Remove, extract, reorder or secure PDFs in seconds.' }
   };
 
@@ -1058,11 +2270,8 @@
       tools: [
         { id: 'image-to-pdf', name: 'Image to PDF', desc: 'PNG/JPG/JPEG/WEBP to PDF.', status: 'available', action: 'merge' },
         { id: 'jpg-to-pdf', name: 'JPG to PDF', desc: 'Convert JPG/JPEG to PDF.', status: 'available', action: 'merge' },
-        { id: 'word-to-pdf', name: 'WORD to PDF', desc: 'DOC/DOCX to PDF.', status: 'available', action: 'merge' },
-        { id: 'powerpoint-to-pdf', name: 'POWERPOINT to PDF', desc: 'PPT/PPTX to PDF.', status: 'available', action: 'merge' },
-        { id: 'excel-to-pdf', name: 'EXCEL to PDF', desc: 'XLS/XLSX to PDF.', status: 'available', action: 'merge' },
         { id: 'html-to-pdf', name: 'HTML to PDF', desc: 'Web pages to PDF.', status: 'available', action: 'merge' },
-        { id: 'scan-to-pdf', name: 'Scan to PDF', desc: 'Turn images into a PDF.', status: 'available', action: 'merge' },
+        { id: 'scan-to-pdf', name: 'Scan to PDF', desc: 'Turn images into a PDF.', status: 'available', action: 'scan' },
         { id: 'convert-to-pdf', name: 'Convert to PDF', desc: 'Convert supported files to PDF.', status: 'available', action: 'merge' }
       ]
     },
@@ -1074,19 +2283,18 @@
         { id: 'pdf-to-word', name: 'PDF to WORD', desc: 'Convert PDF to DOCX.', status: 'available', action: 'more', toolId: 'pdf_to_word' },
         { id: 'pdf-to-powerpoint', name: 'PDF to POWERPOINT', desc: 'Convert PDF to PPTX.', status: 'available', action: 'more', toolId: 'pdf_to_ppt' },
         { id: 'pdf-to-excel', name: 'PDF to EXCEL', desc: 'Convert PDF to XLSX.', status: 'available', action: 'more', toolId: 'pdf_to_excel' },
-        { id: 'pdf-to-pdfa', name: 'PDF to PDF/A', desc: 'Archive-ready PDF/A.', status: 'available', action: 'more', toolId: 'pdfa' },
         { id: 'convert-from-pdf', name: 'Convert from PDF', desc: 'Convert PDF to other formats.', status: 'available', action: 'more', toolId: 'pdf_to_word' },
         { id: 'translate-pdf', name: 'Translate PDF', desc: 'Translate PDF contents.', status: 'available', action: 'more', toolId: 'translate' }
       ]
     },
     {
-      title: 'Optimize & OCR',
+      title: 'Optimize',
       tools: [
         { id: 'optimize-pdf', name: 'Optimize PDF', desc: 'Improve size and performance.', status: 'available', action: 'more', toolId: 'optimize' },
         { id: 'compress-pdf', name: 'Compress PDF', desc: 'Reduce PDF file size.', status: 'available', action: 'more', toolId: 'compress' },
         { id: 'repair-pdf', name: 'Repair PDF', desc: 'Fix corrupted PDF files.', status: 'available', action: 'more', toolId: 'repair' },
-        { id: 'ocr-pdf', name: 'OCR PDF', desc: 'Make scanned PDFs searchable.', status: 'available', action: 'more', toolId: 'ocr' },
-        { id: 'pdf-intelligence', name: 'PDF Intelligence', desc: 'Summaries and smart insights.', status: 'available', action: 'more', toolId: 'intelligence' }
+        { id: 'pdf-intelligence', name: 'PDF Intelligence', desc: 'Summaries and smart insights.', status: 'available', action: 'more', toolId: 'intelligence' },
+        { id: 'summarize-pdf', name: 'Summarize PDF', desc: 'Generate a compact summary report.', status: 'available', action: 'more', toolId: 'summary' }
       ]
     },
     {
@@ -1098,7 +2306,7 @@
         { id: 'sign-pdf', name: 'Sign PDF', desc: 'Add a visual signature.', status: 'available', action: 'more', toolId: 'sign' },
         { id: 'redact-pdf', name: 'Redact PDF', desc: 'Permanently remove text.', status: 'available', action: 'more', toolId: 'redact' },
         { id: 'add-page-numbers', name: 'Add Page Numbers', desc: 'Number PDF pages.', status: 'available', action: 'more', toolId: 'page_numbers' },
-        { id: 'add-watermark', name: 'Add Watermark', desc: 'Stamp a watermark on pages.', status: 'available', action: 'more', toolId: 'watermark' }
+        { id: 'add-watermark', name: 'Add Logo', desc: 'Add text or custom logo to pages.', status: 'available', action: 'more', toolId: 'watermark' }
       ]
     }
   ];
@@ -1115,17 +2323,16 @@
     protect: 'Add a password to open the PDF.',
     unlock: 'Remove password protection with the correct password.',
     page_numbers: 'Add page numbers with your chosen position.',
-    watermark: 'Add a text watermark to every page.',
+    watermark: 'Add a text logo or a custom logo to your PDF.',
     sign: 'Add a visual signature text on the PDF.',
     redact: 'Redact every occurrence of the given text.',
-    ocr: 'Run OCR to make scanned PDFs searchable.',
-    pdfa: 'Convert to PDF/A for archiving.',
     pdf_to_word: 'Convert PDF to DOCX (text-based).',
     pdf_to_ppt: 'Convert PDF to PPTX (image-based).',
     pdf_to_excel: 'Convert PDF to XLSX (text-based).',
     translate: 'Translate text and export as a new PDF.',
     compare: 'Upload two PDFs to generate a compare report.',
-    intelligence: 'Generate a PDF report with summary and stats.'
+    intelligence: 'Generate a PDF report with summary and stats.',
+    summary: 'Summarize the PDF into a short report with top keywords.'
   };
 
   const MORE_TOOL_CONFIG = {
@@ -1143,14 +2350,13 @@
     watermark: { pages: true, watermark: true },
     sign: { sign: true },
     redact: { pages: true, redact: true },
-    ocr: { ocr: true },
-    pdfa: {},
     pdf_to_word: {},
     pdf_to_ppt: {},
     pdf_to_excel: {},
     translate: { translate: true },
     compare: { compare: true },
-    intelligence: {}
+    intelligence: {},
+    summary: { summary: true }
   };
 
   function selectTool(tool) {
@@ -1158,7 +2364,7 @@
     document.getElementById('hero-badge').textContent = h.badge;
     document.getElementById('hero-title').innerHTML = h.title;
     document.getElementById('hero-desc').textContent = h.desc;
-    ['merge','split','image','more'].forEach(t => {
+    ['merge','split','image','scan','more'].forEach(t => {
       const card = document.getElementById('card-' + t);
       if (card) card.classList.toggle('active', t === tool);
     });
@@ -1173,12 +2379,29 @@
   }
 
   function setNavActive(filter) {
+    const navHome = document.getElementById('nav-home');
     const navImage = document.getElementById('nav-image');
     const navPdf = document.getElementById('nav-pdf');
     const navLibrary = document.getElementById('nav-library');
+    if (navHome) navHome.classList.toggle('active', filter === 'home');
     if (navImage) navImage.classList.toggle('active', filter === 'image');
     if (navPdf) navPdf.classList.toggle('active', filter === 'pdf');
     if (navLibrary) navLibrary.classList.toggle('active', filter === 'all');
+  }
+
+  function setView(view) {
+    const home = document.getElementById('home');
+    const hero = document.querySelector('.hero');
+    const library = document.getElementById('tools-library');
+    const container = document.querySelector('.container');
+    const showHome = view === 'home';
+    const showBrowse = view === 'tools';
+    const showWorkspace = view !== 'home';
+    if (home) home.classList.toggle('is-hidden', !showHome);
+    if (hero) hero.classList.toggle('is-hidden', !showBrowse);
+    if (library) library.classList.toggle('is-hidden', !showBrowse);
+    if (container) container.classList.toggle('is-hidden', !showWorkspace);
+    document.body.classList.toggle('tool-focus', view === 'focus');
   }
 
   function setLibraryFilter(filter, scroll = false) {
@@ -1192,30 +2415,59 @@
     if (scroll) scrollToLibrary();
   }
 
+  function openHome(scroll = true) {
+    setView('home');
+    setNavActive('home');
+    if (scroll) window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
   function openImageTools() {
+    setView('tools');
     setLibraryFilter('image', true);
     selectTool('image');
   }
 
   function openPdfTools() {
+    setView('tools');
     setLibraryFilter('pdf', true);
     selectTool('merge');
   }
 
   function openAllTools() {
+    setView('tools');
     setLibraryFilter('all', true);
+  }
+
+  function inferFilterForTool(tool, preferredFilter = null) {
+    if (preferredFilter) return preferredFilter;
+    if (tool?.action === 'image' || tool?.action === 'scan') return 'image';
+    return 'pdf';
+  }
+
+  function openFocusedPanel(action, preferredFilter = 'pdf') {
+    libraryFilter = preferredFilter;
+    setView('focus');
+    setNavActive(preferredFilter);
+    activeLibraryToolId = null;
+    renderToolLibrary(document.getElementById('tools-search')?.value || '');
+    selectTool(action);
+    const main = document.querySelector('.container');
+    if (main) main.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    const badge = heroContent[action]?.badge || 'Selected tool';
+    showToast(`${badge} workspace opened.`);
   }
 
   function applyTheme(theme) {
     const root = document.documentElement;
     root.setAttribute('data-theme', theme);
     const btn = document.getElementById('theme-toggle');
-    if (btn) btn.textContent = theme === 'light' ? 'Light' : 'Dark';
+    if (btn) btn.textContent = theme === 'light' ? 'Dark Mode' : 'Light Mode';
     localStorage.setItem('pdf_theme', theme);
+    localStorage.setItem('pdf_theme_v2', theme);
   }
 
   function toggleTheme() {
-    const current = document.documentElement.getAttribute('data-theme') || 'dark';
+    const current = document.documentElement.getAttribute('data-theme') || 'light';
     applyTheme(current === 'dark' ? 'light' : 'dark');
   }
 
@@ -1241,7 +2493,76 @@
     return !isImageTool(tool);
   }
 
-  function handleToolClick(tool) {
+  function findToolById(toolId) {
+    for (const group of TOOL_GROUPS) {
+      const match = group.tools.find(tool => tool.id === toolId);
+      if (match) return match;
+    }
+    return null;
+  }
+
+  function getToolsForNav(filter) {
+    const seen = new Set();
+    const items = [];
+    TOOL_GROUPS.forEach(group => {
+      group.tools.forEach(tool => {
+        if (seen.has(tool.id)) return;
+        const imageTool = isImageTool(tool);
+        if (filter === 'image' && !imageTool) return;
+        if (filter === 'pdf' && imageTool) return;
+        seen.add(tool.id);
+        items.push(tool);
+      });
+    });
+    return items;
+  }
+
+  function renderNavMenu(menuId, filter, title) {
+    const menu = document.getElementById(menuId);
+    if (!menu) return;
+    const tools = getToolsForNav(filter);
+    menu.innerHTML = '';
+
+    const heading = document.createElement('div');
+    heading.className = 'nav-dropdown-title';
+    heading.textContent = title;
+    menu.appendChild(heading);
+
+    const list = document.createElement('div');
+    list.className = 'nav-dropdown-list';
+
+    tools.forEach(tool => {
+      const item = document.createElement('button');
+      item.type = 'button';
+      item.className = `nav-dropdown-item${tool.id === activeLibraryToolId ? ' active' : ''}`;
+      item.innerHTML = `
+        <span class="nav-dropdown-name">${tool.name}</span>
+        <span class="nav-dropdown-meta">${tool.desc || ''}</span>
+      `;
+      item.addEventListener('click', event => {
+        event.preventDefault();
+        event.stopPropagation();
+        handleToolClick(tool, filter);
+        item.blur();
+      });
+      list.appendChild(item);
+    });
+
+    menu.appendChild(list);
+  }
+
+  function renderNavMenus() {
+    renderNavMenu('nav-image-menu', 'image', 'Image Tools');
+    renderNavMenu('nav-pdf-menu', 'pdf', 'PDF Tools');
+    renderNavMenu('nav-all-menu', 'all', 'All Tools');
+  }
+
+  function handleToolClick(tool, preferredFilter = null) {
+    activeLibraryToolId = tool.id;
+    libraryFilter = inferFilterForTool(tool, preferredFilter);
+    setView('focus');
+    setNavActive(libraryFilter);
+    renderToolLibrary(document.getElementById('tools-search')?.value || '');
     if (tool.status === 'available' && tool.action) {
       selectTool(tool.action);
       if (tool.action === 'more' && tool.toolId) {
@@ -1251,9 +2572,9 @@
           updateMoreToolUI();
         }
       }
-      if (tool.action === 'image' && tool.toolId === 'jpg') {
+      if (tool.action === 'image') {
         const fmt = document.getElementById('img-format');
-        if (fmt) fmt.value = 'jpg';
+        if (fmt) fmt.value = tool.toolId === 'jpg' ? 'jpg' : 'png';
       }
       const main = document.querySelector('.container');
       if (main) main.scrollIntoView({ behavior: 'smooth', block: 'start' });
@@ -1288,7 +2609,7 @@
       filtered.forEach(tool => {
         const tile = document.createElement('button');
         tile.type = 'button';
-        tile.className = `tool-tile ${tool.status === 'available' ? 'available' : 'coming'}`;
+        tile.className = `tool-tile ${tool.status === 'available' ? 'available' : 'coming'}${tool.id === activeLibraryToolId ? ' active' : ''}`;
         tile.innerHTML = `
           <div class="tool-title">${tool.name}</div>
           <div class="tool-desc">${tool.desc || ''}</div>
@@ -1310,6 +2631,7 @@
       const label = libraryFilter === 'image' ? 'Image Tools' : libraryFilter === 'pdf' ? 'PDF Tools' : 'All Tools';
       count.textContent = `${visibleCount} tools · ${label}`;
     }
+    renderNavMenus();
   }
 
   // dropdown removed; header now shows primary nav inline
@@ -1318,6 +2640,51 @@
     const t = document.getElementById('toast');
     t.textContent = msg; t.className = `toast ${type} show`;
     setTimeout(() => t.classList.remove('show'), 3500);
+  }
+
+  function closePreviewModal() {
+    const modal = document.getElementById('preview-modal');
+    const body = document.getElementById('preview-modal-body');
+    if (body) body.innerHTML = '';
+    if (modal) modal.classList.remove('show');
+    if (previewModalNeedsRevoke && previewModalUrl) {
+      URL.revokeObjectURL(previewModalUrl);
+    }
+    previewModalUrl = null;
+    previewModalNeedsRevoke = false;
+  }
+
+  function handlePreviewBackdrop(event) {
+    if (event.target?.id === 'preview-modal') {
+      closePreviewModal();
+    }
+  }
+
+  function openPreviewModal({ title, src, type = 'pdf', revoke = false }) {
+    closePreviewModal();
+    const modal = document.getElementById('preview-modal');
+    const body = document.getElementById('preview-modal-body');
+    const titleEl = document.getElementById('preview-modal-title');
+    if (!modal || !body || !titleEl) return;
+
+    titleEl.textContent = title || 'Preview';
+    previewModalUrl = src || null;
+    previewModalNeedsRevoke = revoke;
+
+    if (type === 'image') {
+      const img = document.createElement('img');
+      img.className = 'preview-image';
+      img.src = src;
+      img.alt = title || 'Preview';
+      body.appendChild(img);
+    } else {
+      const frame = document.createElement('iframe');
+      frame.className = 'preview-frame';
+      frame.src = src;
+      frame.title = title || 'Preview';
+      body.appendChild(frame);
+    }
+    modal.classList.add('show');
   }
 
   function formatSize(bytes) {
@@ -1345,12 +2712,34 @@
     return ext === 'png' || ext === 'jpg' || ext === 'jpeg' || ext === 'webp';
   }
 
-  function sanitizeFilename(name, fallback='merged-file') {
+  function sanitizeFilename(name, fallback='merged-file', extension='') {
     let cleaned = String(name || '').replace(/[<>:"/\\|?*\x00-\x1F]/g, '').trim();
     if (!cleaned) cleaned = fallback;
-    if (cleaned.toLowerCase().endsWith('.pdf')) cleaned = cleaned.slice(0, -4);
+    const normalizedExt = extension
+      ? `.${String(extension).replace(/^\./, '').toLowerCase()}`
+      : '.pdf';
+    if (cleaned.toLowerCase().endsWith(normalizedExt)) {
+      cleaned = cleaned.slice(0, -normalizedExt.length);
+    }
     cleaned = cleaned.replace(/[. ]+$/g, '');
     return cleaned || fallback;
+  }
+
+  async function fetchPdfInfo(file) {
+    const fd = new FormData();
+    fd.append('file', file);
+    const res = await fetch(`${API}/pdf-info`, { method: 'POST', body: fd });
+    if (!res.ok) throw new Error(await parseErrorMessage(res, 'Unable to read PDF info.'));
+    return res.json();
+  }
+
+  function getMoreOutputExtension(tool) {
+    const extMap = {
+      pdf_to_word: 'docx',
+      pdf_to_ppt: 'pptx',
+      pdf_to_excel: 'xlsx'
+    };
+    return extMap[tool] || 'pdf';
   }
 
   async function parseErrorMessage(res, fallback) {
@@ -1394,8 +2783,19 @@
       const exists = mergeFiles.find(x => x.name===f.name && x.size===f.size && x.lastModified===f.lastModified);
       if (!exists) { mergeFiles.push(f); added++; }
     });
-    if (skipped) showToast(`${skipped} file skipped. Allowed: PDF, images, DOC/DOCX, PPT/PPTX, XLS/XLSX, HTML`, 'error');
+    if (skipped) showToast(`${skipped} file skipped. Allowed: PDF, images, HTML, DOCX, PPTX, XLSX, TXT, MD, CSV, JSON`, 'error');
     if (!added && files.length && !skipped) showToast('These files are already added.', 'error');
+    renderMergeList();
+  }
+
+  function reorderMergeFiles(fromIndex, toIndex) {
+    if (fromIndex === toIndex) return;
+    if (fromIndex < 0 || toIndex < 0 || fromIndex >= mergeFiles.length || toIndex >= mergeFiles.length) return;
+    const lastIndex = mergeFiles.length - 1;
+    const [moved] = mergeFiles.splice(fromIndex, 1);
+    let targetIndex = fromIndex < toIndex ? toIndex - 1 : toIndex;
+    if (fromIndex < toIndex && toIndex === lastIndex) targetIndex = mergeFiles.length;
+    mergeFiles.splice(targetIndex, 0, moved);
     renderMergeList();
   }
 
@@ -1421,6 +2821,8 @@
       
       const item = document.createElement('div');
       item.className = 'file-item';
+      item.setAttribute('draggable', 'true');
+      item.dataset.index = String(i);
       item.innerHTML = `
         <div class="file-thumb" id="thumb-${i}">
           <span class="file-type-chip">${ext}</span>
@@ -1435,6 +2837,33 @@
           </div>
         </div>`;
       list.appendChild(item);
+
+      item.addEventListener('dragstart', e => {
+        if (e.target.closest('button')) {
+          e.preventDefault();
+          return;
+        }
+        item.classList.add('dragging');
+        e.dataTransfer.setData('text/plain', String(i));
+        e.dataTransfer.effectAllowed = 'move';
+      });
+      item.addEventListener('dragover', e => {
+        e.preventDefault();
+        item.classList.add('drag-over');
+        e.dataTransfer.dropEffect = 'move';
+      });
+      item.addEventListener('dragleave', () => item.classList.remove('drag-over'));
+      item.addEventListener('drop', e => {
+        e.preventDefault();
+        item.classList.remove('drag-over');
+        const from = Number(e.dataTransfer.getData('text/plain'));
+        const to = Number(item.dataset.index);
+        if (!Number.isNaN(from) && !Number.isNaN(to)) reorderMergeFiles(from, to);
+      });
+      item.addEventListener('dragend', () => {
+        item.classList.remove('dragging');
+        item.classList.remove('drag-over');
+      });
       
       if (previewUrl) {
         const img = item.querySelector('img');
@@ -1517,7 +2946,7 @@
       return;
     }
     const rawName = document.getElementById('merge-output-name').value;
-    const finalName = sanitizeFilename(rawName, mergeDefaultName || 'merged-file');
+    const finalName = sanitizeFilename(rawName, mergeDefaultName || 'merged-file', 'pdf');
     const a = document.createElement('a');
     a.href = mergeOutputUrl;
     a.download = `${finalName}.pdf`;
@@ -1539,26 +2968,49 @@
     if (f && getFileExt(f.name)==='pdf') handleSplitFile(f);
   });
 
-  function handleSplitFile(file) {
+  async function handleSplitFile(file) {
     splitFile = file;
-    const reader = new FileReader();
-    reader.onload = e => {
-      const str = new TextDecoder('latin1').decode(new Uint8Array(e.target.result));
-      const m = str.match(/\/Type\s*\/Page[^s]/g);
-      splitTotalPages = m ? m.length : '?';
-      document.getElementById('page-info').textContent = `Total pages: ${splitTotalPages}. Enter split point (1 to ${splitTotalPages-1})`;
-      document.getElementById('split-config').style.display = 'block';
-      document.getElementById('split-page').max = splitTotalPages-1;
-    };
-    reader.readAsArrayBuffer(file);
+    resetSplitDownloads();
+    document.getElementById('split-config').style.display = 'block';
+    document.getElementById('page-info').textContent = 'Reading page count...';
+    try {
+      const info = await fetchPdfInfo(file);
+      splitTotalPages = Number(info.pages || 0);
+      if (splitTotalPages < 2) {
+        throw new Error('PDF must have at least 2 pages to split.');
+      }
+      document.getElementById('page-info').textContent = `Total pages: ${splitTotalPages}. Enter split point (1 to ${splitTotalPages - 1})`;
+      document.getElementById('split-page').max = splitTotalPages - 1;
+      document.getElementById('split-page').value = '1';
+    } catch (err) {
+      splitTotalPages = 0;
+      document.getElementById('split-config').style.display = 'none';
+      showToast(err?.message || 'Unable to read the PDF page count.', 'error');
+    }
+  }
+
+  function resetSplitDownloads() {
+    if (splitPart1Url) {
+      URL.revokeObjectURL(splitPart1Url);
+      splitPart1Url = null;
+    }
+    if (splitPart2Url) {
+      URL.revokeObjectURL(splitPart2Url);
+      splitPart2Url = null;
+    }
+    document.getElementById('split-download').classList.remove('show');
   }
 
   function clearSplit() {
     splitFile = null;
+    splitTotalPages = 0;
+    resetSplitDownloads();
     document.getElementById('split-config').style.display = 'none';
-    document.getElementById('split-download').classList.remove('show');
     document.getElementById('split-progress').classList.remove('show');
     document.getElementById('split-input').value = '';
+    document.getElementById('split-name-1').value = '';
+    document.getElementById('split-name-2').value = '';
+    document.getElementById('page-info').textContent = 'Total pages will show after upload';
   }
 
   async function splitPDF() {
@@ -1568,20 +3020,23 @@
     const btn = document.getElementById('split-btn');
     btn.disabled = true; btn.textContent = 'Splitting...';
     document.getElementById('split-progress').classList.add('show');
-    document.getElementById('split-download').classList.remove('show');
+    resetSplitDownloads();
     animateProgress('split-bar','split-pct',2000);
     try {
       const fd1 = new FormData(); fd1.append('file', splitFile); fd1.append('page', page);
       const r1 = await fetch(`${API}/split`, {method:'POST', body:fd1});
       if (!r1.ok) throw new Error(await parseErrorMessage(r1, 'Split failed.'));
-      const url1 = URL.createObjectURL(await r1.blob());
+      splitPart1Url = URL.createObjectURL(await r1.blob());
       const fd2 = new FormData(); fd2.append('file', splitFile); fd2.append('page', page);
       const r2 = await fetch(`${API}/split/part2`, {method:'POST', body:fd2});
       if (!r2.ok) throw new Error(await parseErrorMessage(r2, 'Split failed for part 2.'));
-      const url2 = URL.createObjectURL(await r2.blob());
+      splitPart2Url = URL.createObjectURL(await r2.blob());
+      const base = sanitizeFilename(getFileBase(splitFile.name), 'split-file');
+      splitDefaultName1 = `${base}-part-1`;
+      splitDefaultName2 = `${base}-part-2`;
+      document.getElementById('split-name-1').value = splitDefaultName1;
+      document.getElementById('split-name-2').value = splitDefaultName2;
       completeProgress('split-bar','split-pct');
-      document.getElementById('split-dl1').href = url1;
-      document.getElementById('split-dl2').href = url2;
       document.getElementById('split-download').classList.add('show');
       showToast('PDF split successfully.');
     } catch (err) {
@@ -1589,6 +3044,24 @@
       document.getElementById('split-progress').classList.remove('show');
     }
     btn.disabled = false; btn.textContent = 'Split PDF';
+  }
+
+  function downloadSplitPart(part) {
+    const url = part === 1 ? splitPart1Url : splitPart2Url;
+    const inputId = part === 1 ? 'split-name-1' : 'split-name-2';
+    const fallback = part === 1 ? splitDefaultName1 : splitDefaultName2;
+    if (!url) {
+      showToast('Please split the PDF first.', 'error');
+      return;
+    }
+    const finalName = sanitizeFilename(document.getElementById(inputId).value, fallback, 'pdf');
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `${finalName}.pdf`;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    showToast(`Part ${part} download started.`);
   }
 
   // ---- PDF TO IMAGE ----
@@ -1603,27 +3076,156 @@
     if (f && getFileExt(f.name)==='pdf') handleImageFile(f);
   });
 
-  function handleImageFile(file) {
+  function resetImageUploadPreview() {
+    const wrap = document.getElementById('image-upload-preview');
+    const thumb = document.getElementById('image-preview-thumb');
+    const name = document.getElementById('image-preview-name');
+    const meta = document.getElementById('image-preview-meta');
+    if (wrap) wrap.classList.remove('show');
+    if (thumb) thumb.innerHTML = '<span class="file-icon">PDF</span>';
+    if (name) name.textContent = 'Selected PDF';
+    if (meta) meta.textContent = 'First page preview will appear here.';
+  }
+
+  async function renderImageUploadPreview(file) {
+    const wrap = document.getElementById('image-upload-preview');
+    const thumb = document.getElementById('image-preview-thumb');
+    const name = document.getElementById('image-preview-name');
+    const meta = document.getElementById('image-preview-meta');
+    if (!wrap || !thumb || !name || !meta) return;
+
+    wrap.classList.add('show');
+    name.textContent = file.name || 'Selected PDF';
+    meta.textContent = `Loading preview... ${formatSize(file.size || 0)}`;
+    thumb.innerHTML = '<span class="file-icon">PDF</span>';
+
+    const thumbnail = await generatePdfThumbnail(file);
+    if (imageFile !== file) return;
+    if (thumbnail) {
+      thumb.innerHTML = `<img src="${thumbnail}" alt="${file.name || 'PDF preview'}" />`;
+    }
+  }
+
+  function updateImageUploadPreviewMeta(file) {
+    const meta = document.getElementById('image-preview-meta');
+    if (!meta || !file) return;
+    const parts = [formatSize(file.size || 0)];
+    if (imageTotalPages) parts.push(`${imageTotalPages} page${imageTotalPages > 1 ? 's' : ''}`);
+    parts.push('Click to open full view');
+    meta.textContent = parts.join(' · ');
+  }
+
+  function openImageSourcePreview() {
+    if (!imageFile) {
+      showToast('Please upload a PDF first.', 'error');
+      return;
+    }
+    const url = URL.createObjectURL(imageFile);
+    openPreviewModal({
+      title: imageFile.name || 'PDF Preview',
+      src: url,
+      type: 'pdf',
+      revoke: true
+    });
+  }
+
+  async function handleImageFile(file) {
     imageFile = file;
-    const reader = new FileReader();
-    reader.onload = e => {
-      const str = new TextDecoder('latin1').decode(new Uint8Array(e.target.result));
-      const m = str.match(/\/Type\s*\/Page[^s]/g);
-      imageTotalPages = m ? m.length : '?';
+    imageResults = [];
+    document.getElementById('image-config').style.display = 'block';
+    document.getElementById('image-progress').classList.remove('show');
+    document.getElementById('image-download').classList.remove('show');
+    document.getElementById('image-output-prefix').value = '';
+    document.getElementById('img-dl-btns').innerHTML = '';
+    document.getElementById('img-preview-grid').innerHTML = '';
+    document.getElementById('img-page-info').textContent = 'Reading page count...';
+    renderImageUploadPreview(file);
+    try {
+      const info = await fetchPdfInfo(file);
+      imageTotalPages = Number(info.pages || 0);
       document.getElementById('img-page-info').textContent = `This PDF has ${imageTotalPages} pages. Leave empty to convert all.`;
-      document.getElementById('image-config').style.display = 'block';
-    };
-    reader.readAsArrayBuffer(file);
+      document.getElementById('img-page-from').value = '';
+      document.getElementById('img-page-to').value = '';
+      updateImageUploadPreviewMeta(file);
+    } catch (err) {
+      imageTotalPages = 0;
+      document.getElementById('image-config').style.display = 'none';
+      resetImageUploadPreview();
+      showToast(err?.message || 'Unable to read the PDF page count.', 'error');
+    }
   }
 
   function clearImage() {
     imageFile = null;
+    imageResults = [];
+    imageTotalPages = 0;
+    resetImageUploadPreview();
     document.getElementById('image-config').style.display = 'none';
     document.getElementById('image-download').classList.remove('show');
     document.getElementById('image-progress').classList.remove('show');
     document.getElementById('image-input').value = '';
+    document.getElementById('image-output-prefix').value = '';
     document.getElementById('img-dl-btns').innerHTML = '';
     document.getElementById('img-preview-grid').innerHTML = '';
+  }
+
+  function downloadImageResult(index) {
+    const item = imageResults[index];
+    if (!item) {
+      showToast('Converted image not found.', 'error');
+      return;
+    }
+    const prefixRaw = document.getElementById('image-output-prefix').value;
+    const prefix = sanitizeFilename(prefixRaw, imageDefaultPrefix);
+    const a = document.createElement('a');
+    a.href = item.dataUrl;
+    a.download = `${prefix}-${item.pageNum}.${item.ext}`;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    showToast(`Page ${item.pageNum} download started.`);
+  }
+
+  function renderImageDownloads() {
+    const dlBtns = document.getElementById('img-dl-btns');
+    const grid = document.getElementById('img-preview-grid');
+    dlBtns.innerHTML = '';
+    grid.innerHTML = '';
+    if (!imageResults.length) return;
+
+    const prefixRaw = document.getElementById('image-output-prefix').value;
+    const prefix = sanitizeFilename(prefixRaw, imageDefaultPrefix);
+
+    imageResults.forEach((item, index) => {
+      const card = document.createElement('div');
+      card.className = 'img-result-card';
+
+      const thumb = document.createElement('button');
+      thumb.type = 'button';
+      thumb.className = 'img-thumb';
+      thumb.innerHTML = `
+        <img src="${item.dataUrl}" alt="Page ${item.pageNum}" />
+        <span class="img-download-label">Download Page ${item.pageNum}</span>
+      `;
+      thumb.addEventListener('click', () => downloadImageResult(index));
+
+      const previewBtn = document.createElement('button');
+      previewBtn.type = 'button';
+      previewBtn.className = 'img-preview-chip';
+      previewBtn.textContent = 'Preview';
+      previewBtn.addEventListener('click', event => {
+        event.stopPropagation();
+        openPreviewModal({
+          title: `Page ${item.pageNum}`,
+          src: item.dataUrl,
+          type: 'image'
+        });
+      });
+
+      card.appendChild(thumb);
+      card.appendChild(previewBtn);
+      grid.appendChild(card);
+    });
   }
 
   async function convertToImage() {
@@ -1646,24 +3248,20 @@
       if (!res.ok) throw new Error(await parseErrorMessage(res, 'Conversion failed.'));
       const data = await res.json();
       completeProgress('image-bar','image-pct');
-      const dlBtns = document.getElementById('img-dl-btns');
-      const grid = document.getElementById('img-preview-grid');
-      dlBtns.innerHTML = ''; grid.innerHTML = '';
       const outExt = data.format || format;
       const pageOffset = Number(data.page_from || 1);
       const mime = (outExt==='jpeg' || outExt==='jpg') ? 'image/jpeg' : outExt==='webp' ? 'image/webp' : 'image/png';
-      data.images.forEach((b64, i) => {
+      imageDefaultPrefix = sanitizeFilename(`${getFileBase(imageFile.name)}-page`, 'pdf-page');
+      imageResults = data.images.map((b64, i) => {
         const pageNum = pageOffset + i;
-        const dataUrl = `data:${mime};base64,${b64}`;
-        const a = document.createElement('a');
-        a.className = 'btn-download'; a.href = dataUrl;
-        a.download = `page_${pageNum}.${outExt}`; a.textContent = `Download Page ${pageNum}`;
-        dlBtns.appendChild(a);
-        const thumb = document.createElement('div');
-        thumb.className = 'img-thumb';
-        thumb.innerHTML = `<img src="${dataUrl}" alt="Page ${pageNum}" />`;
-        grid.appendChild(thumb);
+        return {
+          pageNum,
+          ext: outExt,
+          dataUrl: `data:${mime};base64,${b64}`
+        };
       });
+      document.getElementById('image-output-prefix').value = imageDefaultPrefix;
+      renderImageDownloads();
       document.getElementById('image-download').classList.add('show');
       showToast(`${data.images.length} page(s) converted.`);
     } catch (err) {
@@ -1673,9 +3271,189 @@
     btn.disabled = false; btn.textContent = 'Convert to Images';
   }
 
+  // ---- SCAN TO PDF ----
+  document.getElementById('scan-input').addEventListener('change', function() { addScanFiles(Array.from(this.files)); });
+  const scanDZ = document.getElementById('scan-dropzone');
+  scanDZ.addEventListener('dragover', e => { e.preventDefault(); scanDZ.classList.add('dragover'); });
+  scanDZ.addEventListener('dragleave', () => scanDZ.classList.remove('dragover'));
+  scanDZ.addEventListener('drop', e => {
+    e.preventDefault();
+    scanDZ.classList.remove('dragover');
+    addScanFiles(Array.from(e.dataTransfer.files));
+  });
+
+  function isScanSupported(file) {
+    return SCAN_ALLOWED_EXTS.includes(getFileExt(file?.name));
+  }
+
+  function addScanFiles(files) {
+    let added = 0;
+    let skipped = 0;
+    files.forEach(file => {
+      if (!isScanSupported(file)) { skipped++; return; }
+      const exists = scanFiles.find(x => x.name === file.name && x.size === file.size && x.lastModified === file.lastModified);
+      if (!exists) {
+        scanFiles.push(file);
+        added++;
+      }
+    });
+    if (skipped) showToast(`${skipped} file skipped. Allowed: PNG, JPG, JPEG, WEBP`, 'error');
+    if (!added && files.length && !skipped) showToast('These images are already added.', 'error');
+    renderScanList();
+  }
+
+  function reorderScanFiles(fromIndex, toIndex) {
+    if (fromIndex === toIndex) return;
+    if (fromIndex < 0 || toIndex < 0 || fromIndex >= scanFiles.length || toIndex >= scanFiles.length) return;
+    const lastIndex = scanFiles.length - 1;
+    const [moved] = scanFiles.splice(fromIndex, 1);
+    let targetIndex = fromIndex < toIndex ? toIndex - 1 : toIndex;
+    if (fromIndex < toIndex && toIndex === lastIndex) targetIndex = scanFiles.length;
+    scanFiles.splice(targetIndex, 0, moved);
+    renderScanList();
+  }
+
+  function renderScanList() {
+    const list = document.getElementById('scan-file-list');
+    list.innerHTML = '';
+
+    if (!scanFiles.length) {
+      const empty = document.createElement('div');
+      empty.className = 'file-item';
+      empty.style.padding = '14px';
+      empty.style.gridColumn = '1 / -1';
+      empty.innerHTML = `<div class="file-size">No scan images yet. Add files in the order you want them in the PDF.</div>`;
+      list.appendChild(empty);
+      return;
+    }
+
+    scanFiles.forEach((file, index) => {
+      const previewUrl = URL.createObjectURL(file);
+      const item = document.createElement('div');
+      item.className = 'file-item';
+      item.setAttribute('draggable', 'true');
+      item.dataset.index = String(index);
+      item.innerHTML = `
+        <div class="file-thumb">
+          <span class="file-type-chip">${(getFileExt(file.name) || 'img').toUpperCase()}</span>
+          <img src="${previewUrl}" alt="${file.name}" />
+        </div>
+        <div class="file-body">
+          <div class="file-name" title="${file.name}">${file.name}</div>
+          <div class="file-size">${formatSize(file.size)}</div>
+          <div class="file-actions">
+            <button class="remove-btn" type="button" onclick="removeScanFile(${index})">Remove</button>
+          </div>
+        </div>`;
+      list.appendChild(item);
+
+      const img = item.querySelector('img');
+      if (img) img.onload = () => URL.revokeObjectURL(previewUrl);
+
+      item.addEventListener('dragstart', e => {
+        if (e.target.closest('button')) {
+          e.preventDefault();
+          return;
+        }
+        item.classList.add('dragging');
+        e.dataTransfer.setData('text/plain', String(index));
+        e.dataTransfer.effectAllowed = 'move';
+      });
+      item.addEventListener('dragover', e => {
+        e.preventDefault();
+        item.classList.add('drag-over');
+        e.dataTransfer.dropEffect = 'move';
+      });
+      item.addEventListener('dragleave', () => item.classList.remove('drag-over'));
+      item.addEventListener('drop', e => {
+        e.preventDefault();
+        item.classList.remove('drag-over');
+        const from = Number(e.dataTransfer.getData('text/plain'));
+        const to = Number(item.dataset.index);
+        if (!Number.isNaN(from) && !Number.isNaN(to)) reorderScanFiles(from, to);
+      });
+      item.addEventListener('dragend', () => {
+        item.classList.remove('dragging');
+        item.classList.remove('drag-over');
+      });
+    });
+  }
+
+  function removeScanFile(index) {
+    scanFiles.splice(index, 1);
+    renderScanList();
+  }
+
+  function clearScan() {
+    scanFiles = [];
+    if (scanOutputUrl) {
+      URL.revokeObjectURL(scanOutputUrl);
+      scanOutputUrl = null;
+    }
+    document.getElementById('scan-input').value = '';
+    document.getElementById('scan-output-name').value = '';
+    document.getElementById('scan-download').classList.remove('show');
+    document.getElementById('scan-progress').classList.remove('show');
+    renderScanList();
+  }
+
+  async function prepareScan() {
+    if (!scanFiles.length) { showToast('Please add at least 1 image first.','error'); return; }
+    const btn = document.getElementById('scan-btn');
+    btn.disabled = true; btn.textContent = 'Preparing...';
+    document.getElementById('scan-progress').classList.add('show');
+    document.getElementById('scan-download').classList.remove('show');
+    animateProgress('scan-bar','scan-pct',2200);
+    const fd = new FormData();
+    scanFiles.forEach(file => fd.append('files', file));
+    try {
+      const res = await fetch(`${API}/scan-to-pdf`, { method:'POST', body: fd });
+      if (!res.ok) throw new Error(await parseErrorMessage(res, 'Failed to create scan PDF.'));
+      if (scanOutputUrl) URL.revokeObjectURL(scanOutputUrl);
+      scanOutputUrl = URL.createObjectURL(await res.blob());
+      scanDefaultName = sanitizeFilename(`${getFileBase(scanFiles[0].name)}-scan`, 'scan-document');
+      document.getElementById('scan-output-name').value = scanDefaultName;
+      completeProgress('scan-bar','scan-pct');
+      document.getElementById('scan-download').classList.add('show');
+      showToast('Scan PDF ready.');
+    } catch (err) {
+      showToast(err?.message || 'Error: Is the backend running?','error');
+      document.getElementById('scan-progress').classList.remove('show');
+    }
+    btn.disabled = false; btn.textContent = 'Create Scan PDF';
+  }
+
+  function downloadScan() {
+    if (!scanOutputUrl) {
+      showToast('Please create the scan PDF first.', 'error');
+      return;
+    }
+    const finalName = sanitizeFilename(document.getElementById('scan-output-name').value, scanDefaultName, 'pdf');
+    const a = document.createElement('a');
+    a.href = scanOutputUrl;
+    a.download = `${finalName}.pdf`;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    showToast('Scan PDF download started.');
+  }
+
   // ---- EDIT & SECURE ----
   document.getElementById('more-input').addEventListener('change', function() { if (this.files[0]) handleMoreFile(this.files[0]); });
   document.getElementById('compare-input').addEventListener('change', function() { compareFile = this.files[0] || null; });
+  document.querySelectorAll('input[name="logo-type"]').forEach(el => {
+    el.addEventListener('change', updateLogoTypeUI);
+  });
+  const logoInput = document.getElementById('logo-file');
+  if (logoInput) {
+    logoInput.addEventListener('change', function() { handleLogoFile(this.files[0]); });
+  }
+  ['logo-scale', 'logo-opacity', 'logo-rotate'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.addEventListener('input', updateLogoPreview);
+  });
+  const logoPosition = document.getElementById('logo-position');
+  if (logoPosition) logoPosition.addEventListener('change', updateLogoPreview);
   const moreDZ = document.getElementById('more-dropzone');
   moreDZ.addEventListener('dragover', e => { e.preventDefault(); moreDZ.classList.add('dragover'); });
   moreDZ.addEventListener('dragleave', () => moreDZ.classList.remove('dragover'));
@@ -1688,15 +3466,120 @@
 
   function handleMoreFile(file) {
     moreFile = file;
+    if (moreOutputUrl) {
+      URL.revokeObjectURL(moreOutputUrl);
+      moreOutputUrl = null;
+    }
     document.getElementById('more-config').style.display = 'block';
     document.getElementById('more-progress').classList.remove('show');
     document.getElementById('more-download').classList.remove('show');
     updateMoreToolUI();
   }
 
+  function getLogoType() {
+    return document.querySelector('input[name="logo-type"]:checked')?.value || 'text';
+  }
+
+  function updateLogoTypeUI() {
+    const type = getLogoType();
+    const textFields = document.getElementById('watermark-text-fields');
+    const customFields = document.getElementById('watermark-custom-fields');
+    if (textFields) textFields.style.display = type === 'text' ? 'block' : 'none';
+    if (customFields) customFields.style.display = type === 'custom' ? 'block' : 'none';
+    const textLabel = document.getElementById('logo-type-text-label');
+    const customLabel = document.getElementById('logo-type-custom-label');
+    if (textLabel) textLabel.classList.toggle('active', type === 'text');
+    if (customLabel) customLabel.classList.toggle('active', type === 'custom');
+    if (type === 'custom') updateLogoPreview();
+  }
+
+  function handleLogoFile(file) {
+    logoFile = file || null;
+    const img = document.getElementById('logo-preview-img');
+    const page = document.getElementById('logo-page');
+    if (!img || !page) return;
+    if (logoPreviewUrl) {
+      URL.revokeObjectURL(logoPreviewUrl);
+      logoPreviewUrl = null;
+    }
+    if (!logoFile) {
+      img.src = '';
+      page.classList.remove('has-logo');
+      return;
+    }
+    logoPreviewUrl = URL.createObjectURL(logoFile);
+    img.onload = () => updateLogoPreview();
+    img.src = logoPreviewUrl;
+    page.classList.add('has-logo');
+  }
+
+  function updateLogoPreview() {
+    const img = document.getElementById('logo-preview-img');
+    const page = document.getElementById('logo-page');
+    if (!img || !page) return;
+    const scale = parseFloat(document.getElementById('logo-scale')?.value || '0.2');
+    const opacity = parseFloat(document.getElementById('logo-opacity')?.value || '0.8');
+    const rotate = parseFloat(document.getElementById('logo-rotate')?.value || '0');
+    const position = document.getElementById('logo-position')?.value || 'bottom-right';
+
+    const scaleLabel = document.getElementById('logo-scale-val');
+    const opacityLabel = document.getElementById('logo-opacity-val');
+    const rotateLabel = document.getElementById('logo-rotate-val');
+    if (scaleLabel) scaleLabel.textContent = `${Math.round(scale * 100)}%`;
+    if (opacityLabel) opacityLabel.textContent = opacity.toFixed(2);
+    if (rotateLabel) rotateLabel.textContent = `${Math.round(rotate)}°`;
+
+    const pageWidth = page.clientWidth || 180;
+    const targetWidth = Math.max(30, pageWidth * scale);
+    img.style.width = `${targetWidth}px`;
+    img.style.opacity = `${opacity}`;
+    img.style.transform = `rotate(${rotate}deg)`;
+    img.style.top = 'auto';
+    img.style.bottom = 'auto';
+    img.style.left = 'auto';
+    img.style.right = 'auto';
+
+    const margin = Math.round(pageWidth * 0.06);
+    if (position === 'center') {
+      img.style.top = '50%';
+      img.style.left = '50%';
+      img.style.transform = `translate(-50%, -50%) rotate(${rotate}deg)`;
+      return;
+    }
+    if (position.includes('top')) img.style.top = `${margin}px`;
+    if (position.includes('bottom')) img.style.bottom = `${margin}px`;
+    if (position.includes('left')) img.style.left = `${margin}px`;
+    if (position.includes('right')) img.style.right = `${margin}px`;
+  }
+
+  function clearLogoState() {
+    logoFile = null;
+    if (logoPreviewUrl) {
+      URL.revokeObjectURL(logoPreviewUrl);
+      logoPreviewUrl = null;
+    }
+    const input = document.getElementById('logo-file');
+    if (input) input.value = '';
+    const img = document.getElementById('logo-preview-img');
+    const page = document.getElementById('logo-page');
+    if (img) img.src = '';
+    if (page) page.classList.remove('has-logo');
+    const scale = document.getElementById('logo-scale');
+    const opacity = document.getElementById('logo-opacity');
+    const rotate = document.getElementById('logo-rotate');
+    if (scale) scale.value = '0.2';
+    if (opacity) opacity.value = '0.8';
+    if (rotate) rotate.value = '0';
+    const position = document.getElementById('logo-position');
+    if (position) position.value = 'bottom-right';
+    updateLogoPreview();
+  }
+
   function updateMoreToolUI() {
     const tool = document.getElementById('more-tool').value;
     const config = MORE_TOOL_CONFIG[tool] || {};
+    const label = document.querySelector(`#more-tool option[value="${tool}"]`)?.textContent?.trim() || 'Selected Tool';
+    const outputExt = getMoreOutputExtension(tool);
     document.getElementById('more-pages-row').style.display = config.pages ? 'block' : 'none';
     document.getElementById('more-rotate-row').style.display = config.rotate ? 'block' : 'none';
     document.getElementById('more-crop-row').style.display = config.crop ? 'block' : 'none';
@@ -1706,13 +3589,19 @@
     document.getElementById('more-watermark-row').style.display = config.watermark ? 'block' : 'none';
     document.getElementById('more-sign-row').style.display = config.sign ? 'block' : 'none';
     document.getElementById('more-redact-row').style.display = config.redact ? 'block' : 'none';
-    document.getElementById('more-ocr-row').style.display = config.ocr ? 'block' : 'none';
     document.getElementById('more-translate-row').style.display = config.translate ? 'block' : 'none';
     document.getElementById('more-compare-row').style.display = config.compare ? 'block' : 'none';
+    document.getElementById('more-summary-row').style.display = config.summary ? 'block' : 'none';
+    if (config.watermark) updateLogoTypeUI();
     document.getElementById('more-pages-hint').textContent = config.pagesRequired
       ? 'Pages are required for this tool.'
       : 'Leave empty to apply on all pages.';
     document.getElementById('more-hint').textContent = MORE_TOOL_HINTS[tool] || '';
+    document.getElementById('more-workspace-title').textContent = label;
+    document.getElementById('more-workspace-desc').textContent = MORE_TOOL_HINTS[tool] || 'Configure the selected tool and run it.';
+    document.getElementById('more-progress-label').textContent = `${label} in progress...`;
+    document.getElementById('more-download-title').textContent = `${label} complete. Rename it if needed, then download.`;
+    document.getElementById('more-download-button').textContent = `Download ${outputExt.toUpperCase()}`;
   }
 
   function clearMore() {
@@ -1733,11 +3622,17 @@
     document.getElementById('watermark-text').value = '';
     document.getElementById('watermark-opacity').value = '0.2';
     document.getElementById('watermark-angle').value = '35';
+    const logoTypeText = document.querySelector('input[name="logo-type"][value="text"]');
+    if (logoTypeText) logoTypeText.checked = true;
+    updateLogoTypeUI();
+    clearLogoState();
     document.getElementById('sign-text').value = '';
     document.getElementById('redact-text').value = '';
-    document.getElementById('ocr-lang').value = 'eng';
     document.getElementById('translate-lang').value = 'en';
     document.getElementById('compare-input').value = '';
+    document.getElementById('summary-sentences').value = '5';
+    document.getElementById('more-output-name').value = '';
+    document.getElementById('more-download-button').textContent = `Download ${getMoreOutputExtension(document.getElementById('more-tool').value).toUpperCase()}`;
   }
 
   async function runMoreTool() {
@@ -1766,16 +3661,18 @@
       watermark: 'add-watermark',
       sign: 'sign',
       redact: 'redact',
-      ocr: 'ocr',
-      pdfa: 'pdf-to-pdfa',
       pdf_to_word: 'pdf-to-word',
       pdf_to_ppt: 'pdf-to-powerpoint',
       pdf_to_excel: 'pdf-to-excel',
       translate: 'translate',
       compare: 'compare',
-      intelligence: 'pdf-intelligence'
+      intelligence: 'pdf-intelligence',
+      summary: 'summarize'
     };
-    const endpoint = endpointMap[tool];
+    let endpoint = endpointMap[tool];
+    if (tool === 'watermark' && getLogoType() === 'custom') {
+      endpoint = 'add-logo';
+    }
     if (!endpoint) { showToast('Tool is not supported yet.','error'); return; }
 
     const fd = new FormData();
@@ -1807,13 +3704,27 @@
       fd.append('position', position);
     }
     if (tool === 'watermark') {
-      const text = String(document.getElementById('watermark-text').value || '').trim();
-      if (!text) { showToast('Watermark text is required.','error'); return; }
-      const opacity = document.getElementById('watermark-opacity').value || '0.2';
-      const angle = document.getElementById('watermark-angle').value || '35';
-      fd.append('text', text);
-      fd.append('opacity', opacity);
-      fd.append('angle', angle);
+      const logoType = getLogoType();
+      if (logoType === 'custom') {
+        if (!logoFile) { showToast('Please upload a logo image.','error'); return; }
+        const scale = document.getElementById('logo-scale')?.value || '0.2';
+        const opacity = document.getElementById('logo-opacity')?.value || '0.8';
+        const position = document.getElementById('logo-position')?.value || 'bottom-right';
+        const rotate = document.getElementById('logo-rotate')?.value || '0';
+        fd.append('logo', logoFile);
+        fd.append('scale', scale);
+        fd.append('opacity', opacity);
+        fd.append('position', position);
+        fd.append('rotate', rotate);
+      } else {
+        const text = String(document.getElementById('watermark-text').value || '').trim();
+        if (!text) { showToast('Watermark text is required.','error'); return; }
+        const opacity = document.getElementById('watermark-opacity').value || '0.2';
+        const angle = document.getElementById('watermark-angle').value || '35';
+        fd.append('text', text);
+        fd.append('opacity', opacity);
+        fd.append('angle', angle);
+      }
     }
     if (tool === 'sign') {
       const text = String(document.getElementById('sign-text').value || '').trim();
@@ -1825,10 +3736,6 @@
       if (!text) { showToast('Text to redact is required.','error'); return; }
       fd.append('text', text);
     }
-    if (tool === 'ocr') {
-      const lang = String(document.getElementById('ocr-lang').value || 'eng').trim();
-      fd.append('lang', lang || 'eng');
-    }
     if (tool === 'translate') {
       const lang = String(document.getElementById('translate-lang').value || 'en').trim();
       if (!lang) { showToast('Target language is required.','error'); return; }
@@ -1837,6 +3744,9 @@
     if (tool === 'compare') {
       if (!compareFile) { showToast('Please upload the second PDF to compare.','error'); return; }
       fd.append('file2', compareFile);
+    }
+    if (tool === 'summary') {
+      fd.append('sentences', document.getElementById('summary-sentences').value || '5');
     }
 
     const btn = document.getElementById('more-btn');
@@ -1850,18 +3760,13 @@
       if (!res.ok) throw new Error(await parseErrorMessage(res, 'Operation failed.'));
       if (moreOutputUrl) URL.revokeObjectURL(moreOutputUrl);
       moreOutputUrl = URL.createObjectURL(await res.blob());
-      const dl = document.getElementById('more-download-link');
-      dl.href = moreOutputUrl;
-      const extMap = {
-        pdf_to_word: 'docx',
-        pdf_to_ppt: 'pptx',
-        pdf_to_excel: 'xlsx'
-      };
-      const ext = extMap[tool] || 'pdf';
-      dl.download = `${tool}_${new Date().toISOString().slice(0,10)}.${ext}`;
+      moreOutputExt = getMoreOutputExtension(tool);
+      moreDefaultName = sanitizeFilename(`${getFileBase(moreFile.name)}-${tool.replace(/_/g, '-')}`, tool, moreOutputExt);
+      document.getElementById('more-output-name').value = moreDefaultName;
+      document.getElementById('more-download-button').textContent = `Download ${moreOutputExt.toUpperCase()}`;
       completeProgress('more-bar','more-pct');
       document.getElementById('more-download').classList.add('show');
-      showToast('PDF ready. Download started when you click the button.');
+      showToast('File ready. Rename if needed, then click download.');
     } catch (err) {
       showToast(err?.message || 'Error: Is the backend running?','error');
       document.getElementById('more-progress').classList.remove('show');
@@ -1869,14 +3774,37 @@
     btn.disabled = false; btn.textContent = 'Run Tool';
   }
 
+  function downloadMore() {
+    if (!moreOutputUrl) {
+      showToast('Please run a tool first.', 'error');
+      return;
+    }
+    const finalName = sanitizeFilename(document.getElementById('more-output-name').value, moreDefaultName, moreOutputExt);
+    const a = document.createElement('a');
+    a.href = moreOutputUrl;
+    a.download = `${finalName}.${moreOutputExt}`;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    showToast(`Download started for ${moreOutputExt.toUpperCase()} file.`);
+  }
+
   const toolsSearchInput = document.getElementById('tools-search');
   if (toolsSearchInput) {
     toolsSearchInput.addEventListener('input', e => renderToolLibrary(e.target.value));
   }
-  const savedTheme = localStorage.getItem('pdf_theme') || 'dark';
+  window.addEventListener('keydown', event => {
+    if (event.key === 'Escape') closePreviewModal();
+  });
+  const savedTheme = localStorage.getItem('pdf_theme_v2') || 'light';
   applyTheme(savedTheme);
   setLibraryFilter('pdf');
+  openHome(false);
+  updateMoreToolUI();
+  updateLogoTypeUI();
+  updateLogoPreview();
   renderMergeList();
+  renderScanList();
 </script>
 </body>
 </html>

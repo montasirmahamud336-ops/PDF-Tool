@@ -1,10 +1,8 @@
 ﻿from __future__ import annotations
 
 import base64
-import os
+from html import escape
 import re
-import shutil
-import subprocess
 import sys
 import uuid
 import webbrowser
@@ -32,10 +30,6 @@ try:
 except Exception:
     pdfium = None
 try:
-    from docx2pdf import convert as docx2pdf_convert
-except Exception:
-    docx2pdf_convert = None
-try:
     from reportlab.pdfgen import canvas as rl_canvas
     from reportlab.lib.pagesizes import letter
     from reportlab.lib.styles import getSampleStyleSheet
@@ -56,9 +50,10 @@ try:
 except Exception:
     Presentation = None
 try:
-    from openpyxl import Workbook
+    from openpyxl import Workbook, load_workbook
 except Exception:
     Workbook = None
+    load_workbook = None
 try:
     from weasyprint import HTML
 except Exception:
@@ -73,24 +68,27 @@ except Exception:
     Translator = None
 
 
-UPLOAD_DIR = Path("uploads")
-OUTPUT_DIR = Path("outputs")
+BASE_DIR = Path(__file__).resolve().parent
+UPLOAD_DIR = BASE_DIR / "uploads"
+OUTPUT_DIR = BASE_DIR / "outputs"
 SUPPORTED_MERGE_EXTS = {
     ".pdf",
     ".png",
     ".jpg",
     ".jpeg",
     ".webp",
-    ".docx",
-    ".doc",
-    ".ppt",
-    ".pptx",
-    ".xls",
-    ".xlsx",
     ".html",
     ".htm",
+    ".docx",
+    ".pptx",
+    ".xlsx",
+    ".txt",
+    ".md",
+    ".csv",
+    ".json",
 }
 SUPPORTED_IMAGE_FORMATS = {"png", "jpeg", "jpg", "webp"}
+TEXT_SOURCE_EXTS = {".txt", ".md", ".csv", ".json"}
 
 UPLOAD_DIR.mkdir(exist_ok=True)
 OUTPUT_DIR.mkdir(exist_ok=True)
@@ -138,22 +136,21 @@ def _image_to_pdf(image_path: Path) -> Path:
     return output_path
 
 
-def _doc_to_pdf(doc_path: Path) -> Path:
-    output_path = OUTPUT_DIR / f"doc_as_pdf_{uuid.uuid4().hex}.pdf"
-    if docx2pdf_convert is not None:
+def _read_text_source(path: Path) -> str:
+    for encoding in ("utf-8", "utf-8-sig", "latin-1"):
         try:
-            docx2pdf_convert(str(doc_path), str(output_path))
-            if output_path.exists():
-                return output_path
-        except Exception:
-            pass
-
-    # Fallback to LibreOffice
-    return _libreoffice_convert_to_pdf(doc_path)
+            return path.read_text(encoding=encoding)
+        except UnicodeDecodeError:
+            continue
+    return path.read_text(encoding="utf-8", errors="ignore")
 
 
-def _office_to_pdf(office_path: Path) -> Path:
-    return _libreoffice_convert_to_pdf(office_path)
+def _split_text_blocks(text: str) -> List[str]:
+    blocks = [block.strip() for block in re.split(r"\n\s*\n", text or "") if block.strip()]
+    if blocks:
+        return blocks
+    fallback = [line.strip() for line in (text or "").splitlines() if line.strip()]
+    return fallback or ["No readable content was found."]
 
 
 def _pdf_split_to_files(pdf_bytes: bytes, page: int) -> tuple[Path, Path, int]:
@@ -283,87 +280,6 @@ def _require_dependency(dep, name: str, hint: str) -> None:
         raise HTTPException(status_code=500, detail=f"{name} is required. {hint}")
 
 
-def _find_soffice() -> Optional[str]:
-    env_path = os.getenv("SOFFICE_PATH")
-    if env_path and Path(env_path).exists():
-        return env_path
-    for exe in ("soffice.exe", "soffice"):
-        path = shutil.which(exe)
-        if path:
-            return path
-    common = [
-        r"C:\Program Files\LibreOffice\program\soffice.exe",
-        r"C:\Program Files (x86)\LibreOffice\program\soffice.exe",
-    ]
-    for path in common:
-        if Path(path).exists():
-            return path
-    return None
-
-
-def _run_command(cmd: List[str], error_message: str) -> None:
-    try:
-        result = subprocess.run(cmd, capture_output=True, text=True, check=True)
-    except subprocess.CalledProcessError as exc:
-        detail = exc.stderr.strip() or exc.stdout.strip() or error_message
-        raise HTTPException(status_code=500, detail=detail) from exc
-
-
-def _find_dep_script(name: str) -> Optional[str]:
-    found = shutil.which(name)
-    if found:
-        return found
-    scripts_dir = DEPS_DIR / ("Scripts" if os.name == "nt" else "bin")
-    if not scripts_dir.exists():
-        return None
-    if os.name == "nt":
-        for suffix in (".exe", ".cmd", ".bat", ""):
-            candidate = scripts_dir / f"{name}{suffix}"
-            if candidate.exists():
-                return str(candidate)
-    else:
-        candidate = scripts_dir / name
-        if candidate.exists():
-            return str(candidate)
-    return None
-
-
-def _ensure_ocr_tools() -> str:
-    ocrmypdf_path = _find_dep_script("ocrmypdf")
-    if not ocrmypdf_path:
-        raise HTTPException(status_code=500, detail="ocrmypdf is required. Install with: pip install ocrmypdf")
-    if not shutil.which("tesseract"):
-        raise HTTPException(status_code=500, detail="Tesseract OCR is required. Install Tesseract and ensure it is in PATH.")
-    return ocrmypdf_path
-
-
-def _libreoffice_convert_to_pdf(input_path: Path) -> Path:
-    soffice = _find_soffice()
-    if not soffice:
-        raise HTTPException(
-            status_code=500,
-            detail="LibreOffice (soffice) not found. Install LibreOffice or set SOFFICE_PATH.",
-        )
-    cmd = [
-        soffice,
-        "--headless",
-        "--nologo",
-        "--nolockcheck",
-        "--convert-to",
-        "pdf",
-        "--outdir",
-        str(OUTPUT_DIR),
-        str(input_path),
-    ]
-    _run_command(cmd, "LibreOffice conversion failed.")
-    expected = OUTPUT_DIR / f"{input_path.stem}.pdf"
-    if not expected.exists():
-        raise HTTPException(status_code=500, detail="LibreOffice conversion did not produce a PDF.")
-    output_path = OUTPUT_DIR / f"office_{uuid.uuid4().hex}.pdf"
-    expected.replace(output_path)
-    return output_path
-
-
 def _html_to_pdf(html_path: Path) -> Path:
     _require_dependency(HTML, "WeasyPrint", "Install with: pip install weasyprint")
     output_path = OUTPUT_DIR / f"html_{uuid.uuid4().hex}.pdf"
@@ -376,16 +292,103 @@ def _render_text_pdf(title: str, paragraphs: List[str]) -> Path:
     output_path = OUTPUT_DIR / f"report_{uuid.uuid4().hex}.pdf"
     doc = SimpleDocTemplate(str(output_path), pagesize=letter)
     styles = getSampleStyleSheet()
-    story = [Paragraph(title, styles["Heading1"]), Spacer(1, 12)]
+    story = [Paragraph(escape(title), styles["Heading1"]), Spacer(1, 12)]
     for para in paragraphs:
         text = (para or "").strip()
         if not text:
             story.append(Spacer(1, 8))
             continue
-        story.append(Paragraph(text.replace("\n", "<br/>"), styles["BodyText"]))
+        safe_text = escape(text).replace("\n", "<br/>")
+        story.append(Paragraph(safe_text, styles["BodyText"]))
         story.append(Spacer(1, 6))
     doc.build(story)
     return output_path
+
+
+def _docx_to_pdf(source_path: Path) -> Path:
+    _require_dependency(Document, "python-docx", "Install with: pip install python-docx")
+    doc = Document(str(source_path))
+    paragraphs: List[str] = []
+
+    for para in doc.paragraphs:
+        text = (para.text or "").strip()
+        if text:
+            paragraphs.append(text)
+
+    for table in doc.tables:
+        for row in table.rows:
+            cells = [(cell.text or "").strip() for cell in row.cells]
+            cleaned = [cell for cell in cells if cell]
+            if cleaned:
+                paragraphs.append(" | ".join(cleaned))
+
+    return _render_text_pdf(source_path.stem, paragraphs or ["No readable text found in the DOCX file."])
+
+
+def _pptx_to_pdf(source_path: Path) -> Path:
+    _require_dependency(Presentation, "python-pptx", "Install with: pip install python-pptx")
+    presentation = Presentation(str(source_path))
+    paragraphs: List[str] = []
+
+    for slide_number, slide in enumerate(presentation.slides, start=1):
+        slide_texts: List[str] = []
+        for shape in slide.shapes:
+            text = getattr(shape, "text", "") or ""
+            cleaned = text.strip()
+            if cleaned:
+                slide_texts.append(cleaned)
+        paragraphs.append(f"Slide {slide_number}")
+        paragraphs.extend(slide_texts or ["No readable text found on this slide."])
+        paragraphs.append("")
+
+    return _render_text_pdf(source_path.stem, paragraphs or ["No readable text found in the PPTX file."])
+
+
+def _xlsx_to_pdf(source_path: Path) -> Path:
+    _require_dependency(load_workbook, "openpyxl", "Install with: pip install openpyxl")
+    workbook = load_workbook(str(source_path), data_only=True)
+    paragraphs: List[str] = []
+
+    try:
+        for worksheet in workbook.worksheets:
+            paragraphs.append(f"Sheet: {worksheet.title}")
+            found_rows = False
+            for row in worksheet.iter_rows(values_only=True):
+                values = [str(cell).strip() for cell in row if cell is not None and str(cell).strip()]
+                if values:
+                    found_rows = True
+                    paragraphs.append(" | ".join(values))
+            if not found_rows:
+                paragraphs.append("No readable data found on this sheet.")
+            paragraphs.append("")
+    finally:
+        workbook.close()
+
+    return _render_text_pdf(source_path.stem, paragraphs or ["No readable content found in the XLSX file."])
+
+
+def _text_source_to_pdf(source_path: Path) -> Path:
+    text = _read_text_source(source_path)
+    return _render_text_pdf(source_path.stem, _split_text_blocks(text))
+
+
+def _convert_source_to_pdf(source_path: Path) -> Path:
+    ext = source_path.suffix.lower()
+    if ext == ".pdf":
+        return source_path
+    if ext in {".png", ".jpg", ".jpeg", ".webp"}:
+        return _image_to_pdf(source_path)
+    if ext in {".html", ".htm"}:
+        return _html_to_pdf(source_path)
+    if ext == ".docx":
+        return _docx_to_pdf(source_path)
+    if ext == ".pptx":
+        return _pptx_to_pdf(source_path)
+    if ext == ".xlsx":
+        return _xlsx_to_pdf(source_path)
+    if ext in TEXT_SOURCE_EXTS:
+        return _text_source_to_pdf(source_path)
+    raise HTTPException(status_code=400, detail=f"Unsupported file type: {ext or 'unknown'}")
 
 
 def _overlay_text_on_pages(
@@ -453,6 +456,20 @@ def _overlay_text_on_pages(
     return writer
 
 
+def _prepare_logo_bytes(logo_bytes: bytes, opacity: float) -> tuple[bytes, int, int]:
+    with Image.open(BytesIO(logo_bytes)) as img:
+        img = img.convert("RGBA")
+        width, height = img.size
+        opacity = max(0.05, min(1.0, float(opacity)))
+        if opacity < 0.999:
+            alpha = img.split()[3]
+            alpha = alpha.point(lambda p: int(p * opacity))
+            img.putalpha(alpha)
+        output = BytesIO()
+        img.save(output, format="PNG")
+    return output.getvalue(), width, height
+
+
 def _extract_text(reader: PdfReader) -> List[str]:
     texts: List[str] = []
     for page in reader.pages:
@@ -498,6 +515,24 @@ def _chunk_text(text: str, size: int = 4000) -> List[str]:
     return chunks
 
 
+def _summarize_text(text: str, max_sentences: int = 5) -> List[str]:
+    max_sentences = max(3, min(12, int(max_sentences)))
+    sentences = [s.strip() for s in re.split(r"(?<=[.!?])\s+", text or "") if len(s.strip().split()) >= 5]
+    if not sentences:
+        return []
+
+    keyword_weights = dict(_keyword_stats(text, top_n=30))
+    scored: List[tuple[float, int, str]] = []
+    for index, sentence in enumerate(sentences):
+        tokens = re.findall(r"[a-zA-Z0-9']+", sentence.lower())
+        score = sum(keyword_weights.get(token, 0) for token in tokens)
+        score += min(len(tokens), 24) * 0.08
+        scored.append((score, index, sentence))
+
+    top_sentences = sorted(scored, key=lambda item: (-item[0], item[1]))[:max_sentences]
+    return [sentence for _, _, sentence in sorted(top_sentences, key=lambda item: item[1])]
+
+
 def _render_pdf_pages(
     pdf_bytes: bytes,
     dpi: int,
@@ -535,7 +570,7 @@ def _render_pdf_pages(
 
 @app.get("/")
 def home():
-    return FileResponse("index.html")
+    return FileResponse(str(BASE_DIR / "index.html"))
 
 
 @app.get("/api/health")
@@ -558,32 +593,16 @@ async def merge_files(background_tasks: BackgroundTasks, files: List[UploadFile]
                 raise HTTPException(
                     status_code=400,
                     detail=(
-                        f"Unsupported file: {upload.filename}. Allowed: PDF, images, "
-                        "DOC/DOCX, PPT/PPTX, XLS/XLSX, HTML."
+                        f"Unsupported file: {upload.filename}. Allowed: PDF, images, HTML, DOCX, PPTX, XLSX, TXT, MD, CSV, JSON."
                     ),
                 )
 
             saved_path = _save_upload(upload, UPLOAD_DIR)
             temp_paths.append(saved_path)
-
-            if ext == ".pdf":
-                merge_inputs.append(saved_path)
-            elif ext in {".png", ".jpg", ".jpeg", ".webp"}:
-                pdf_path = _image_to_pdf(saved_path)
+            pdf_path = _convert_source_to_pdf(saved_path)
+            if pdf_path != saved_path:
                 temp_paths.append(pdf_path)
-                merge_inputs.append(pdf_path)
-            elif ext in {".doc", ".docx"}:
-                pdf_path = _doc_to_pdf(saved_path)
-                temp_paths.append(pdf_path)
-                merge_inputs.append(pdf_path)
-            elif ext in {".ppt", ".pptx", ".xls", ".xlsx"}:
-                pdf_path = _office_to_pdf(saved_path)
-                temp_paths.append(pdf_path)
-                merge_inputs.append(pdf_path)
-            elif ext in {".html", ".htm"}:
-                pdf_path = _html_to_pdf(saved_path)
-                temp_paths.append(pdf_path)
-                merge_inputs.append(pdf_path)
+            merge_inputs.append(pdf_path)
 
         merger = PdfMerger()
         for path in merge_inputs:
@@ -604,6 +623,11 @@ async def merge_files(background_tasks: BackgroundTasks, files: List[UploadFile]
     finally:
         for path in temp_paths:
             _safe_remove(path)
+
+
+@app.post("/convert-to-pdf")
+async def convert_to_pdf(background_tasks: BackgroundTasks, files: List[UploadFile] = File(...)):
+    return await merge_files(background_tasks=background_tasks, files=files)
 
 
 @app.post("/pdf-info")
@@ -1037,6 +1061,88 @@ async def add_watermark(
     return _write_pdf_response(writer, background_tasks, "watermarked")
 
 
+@app.post("/add-logo")
+async def add_logo(
+    background_tasks: BackgroundTasks,
+    file: UploadFile = File(...),
+    logo: UploadFile = File(...),
+    scale: float = Form(0.2),
+    opacity: float = Form(0.8),
+    position: str = Form("bottom-right"),
+    rotate: int = Form(0),
+    pages: Optional[str] = Form(None),
+):
+    if not (file.filename or "").lower().endswith(".pdf"):
+        raise HTTPException(status_code=400, detail="Only PDF files are supported.")
+    if not (logo.filename or ""):
+        raise HTTPException(status_code=400, detail="Logo image is required.")
+    _require_dependency(fitz, "PyMuPDF", "Install with: pip install pymupdf")
+    pdf_bytes = await file.read()
+    logo_bytes_raw = await logo.read()
+    if not logo_bytes_raw:
+        raise HTTPException(status_code=400, detail="Logo image is required.")
+
+    try:
+        logo_bytes, logo_w, logo_h = _prepare_logo_bytes(logo_bytes_raw, opacity)
+    except Exception:
+        raise HTTPException(status_code=400, detail="Logo must be a valid image file.")
+
+    doc = fitz.open(stream=pdf_bytes, filetype="pdf")
+    total_pages = doc.page_count
+    if total_pages == 0:
+        doc.close()
+        raise HTTPException(status_code=400, detail="PDF has no pages.")
+
+    target_pages = _parse_page_sequence(pages, total_pages) if pages else list(range(1, total_pages + 1))
+    scale = max(0.05, min(0.6, float(scale)))
+    rotate = int(rotate)
+    position = (position or "bottom-right").lower()
+    valid_positions = {"top-left", "top-right", "bottom-left", "bottom-right", "center"}
+    if position not in valid_positions:
+        doc.close()
+        raise HTTPException(status_code=400, detail="Invalid logo position.")
+
+    for page_num in target_pages:
+        page = doc[page_num - 1]
+        rect = page.rect
+        page_w, page_h = rect.width, rect.height
+        margin = max(12, min(page_w, page_h) * 0.03)
+        target_w = page_w * scale
+        if logo_w > 0 and logo_h > 0:
+            target_h = target_w * (logo_h / logo_w)
+        else:
+            target_h = target_w
+        if target_h > page_h * 0.8:
+            target_h = page_h * 0.8
+            target_w = target_h * (logo_w / logo_h) if logo_h else target_h
+
+        if position == "center":
+            x = (page_w - target_w) / 2
+            y = (page_h - target_h) / 2
+        elif position == "top-left":
+            x, y = margin, margin
+        elif position == "top-right":
+            x, y = page_w - target_w - margin, margin
+        elif position == "bottom-left":
+            x, y = margin, page_h - target_h - margin
+        else:
+            x, y = page_w - target_w - margin, page_h - target_h - margin
+
+        logo_rect = fitz.Rect(x, y, x + target_w, y + target_h)
+        page.insert_image(logo_rect, stream=logo_bytes, keep_proportion=True, overlay=True, rotate=rotate)
+
+    output_path = OUTPUT_DIR / f"logo_{uuid.uuid4().hex}.pdf"
+    doc.save(output_path)
+    doc.close()
+    background_tasks.add_task(_safe_remove, output_path)
+    return FileResponse(
+        path=str(output_path),
+        filename="logo.pdf",
+        media_type="application/pdf",
+        background=background_tasks,
+    )
+
+
 @app.post("/sign")
 async def sign_pdf(
     background_tasks: BackgroundTasks,
@@ -1096,65 +1202,6 @@ async def redact_pdf(
     return FileResponse(
         path=str(output_path),
         filename="redacted.pdf",
-        media_type="application/pdf",
-        background=background_tasks,
-    )
-
-
-@app.post("/ocr")
-async def ocr_pdf(
-    background_tasks: BackgroundTasks,
-    file: UploadFile = File(...),
-    lang: str = Form("eng"),
-):
-    if not (file.filename or "").lower().endswith(".pdf"):
-        raise HTTPException(status_code=400, detail="Only PDF files are supported.")
-    ocrmypdf_path = _ensure_ocr_tools()
-    pdf_bytes = await file.read()
-    input_path = OUTPUT_DIR / f"ocr_in_{uuid.uuid4().hex}.pdf"
-    output_path = OUTPUT_DIR / f"ocr_out_{uuid.uuid4().hex}.pdf"
-    input_path.write_bytes(pdf_bytes)
-    cmd = [ocrmypdf_path, "--skip-text", "-l", lang, str(input_path), str(output_path)]
-    _run_command(cmd, "OCR failed.")
-    background_tasks.add_task(_safe_remove, input_path)
-    background_tasks.add_task(_safe_remove, output_path)
-    return FileResponse(
-        path=str(output_path),
-        filename="ocr.pdf",
-        media_type="application/pdf",
-        background=background_tasks,
-    )
-
-
-@app.post("/pdf-to-pdfa")
-async def pdf_to_pdfa(
-    background_tasks: BackgroundTasks,
-    file: UploadFile = File(...),
-    lang: str = Form("eng"),
-):
-    if not (file.filename or "").lower().endswith(".pdf"):
-        raise HTTPException(status_code=400, detail="Only PDF files are supported.")
-    ocrmypdf_path = _ensure_ocr_tools()
-    pdf_bytes = await file.read()
-    input_path = OUTPUT_DIR / f"pdfa_in_{uuid.uuid4().hex}.pdf"
-    output_path = OUTPUT_DIR / f"pdfa_out_{uuid.uuid4().hex}.pdf"
-    input_path.write_bytes(pdf_bytes)
-    cmd = [
-        ocrmypdf_path,
-        "--output-type",
-        "pdfa-2",
-        "--skip-text",
-        "-l",
-        lang,
-        str(input_path),
-        str(output_path),
-    ]
-    _run_command(cmd, "PDF/A conversion failed.")
-    background_tasks.add_task(_safe_remove, input_path)
-    background_tasks.add_task(_safe_remove, output_path)
-    return FileResponse(
-        path=str(output_path),
-        filename="pdfa.pdf",
         media_type="application/pdf",
         background=background_tasks,
     )
@@ -1351,6 +1398,43 @@ async def pdf_intelligence(
     return FileResponse(
         path=str(output_path),
         filename="pdf_intelligence.pdf",
+        media_type="application/pdf",
+        background=background_tasks,
+    )
+
+
+@app.post("/summarize")
+async def summarize_pdf(
+    background_tasks: BackgroundTasks,
+    file: UploadFile = File(...),
+    sentences: int = Form(5),
+):
+    if not (file.filename or "").lower().endswith(".pdf"):
+        raise HTTPException(status_code=400, detail="Only PDF files are supported.")
+
+    pdf_bytes = await file.read()
+    reader = _read_pdf(pdf_bytes)
+    full_text = "\n\n".join(_extract_text(reader)).strip()
+    if not full_text:
+        raise HTTPException(status_code=400, detail="No readable text found in the PDF.")
+
+    summary_lines = _summarize_text(full_text, max_sentences=sentences)
+    keywords = _keyword_stats(full_text, top_n=8)
+    paragraphs = [
+        f"Pages: {len(reader.pages)}",
+        f"Words: {len(full_text.split())}",
+        "",
+        "Summary",
+        *(summary_lines or ["No strong summary sentences were detected."]),
+        "",
+        "Top keywords: " + ", ".join(f"{word} ({count})" for word, count in keywords) if keywords else "Top keywords: None",
+    ]
+
+    output_path = _render_text_pdf("PDF Summary Report", paragraphs)
+    background_tasks.add_task(_safe_remove, output_path)
+    return FileResponse(
+        path=str(output_path),
+        filename="summary.pdf",
         media_type="application/pdf",
         background=background_tasks,
     )
