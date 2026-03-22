@@ -115,7 +115,7 @@ Official docs:
 
 - `app.py` exposes a top-level ASGI `app`
 - `.python-version` pins Python 3.12
-- `vercel.json` adds function settings
+- `vercel.json` stays minimal so Vercel can detect the root `app.py` entrypoint cleanly
 - Runtime file writes automatically use a writable temp directory on Vercel
 
 ## Deploy on Render
