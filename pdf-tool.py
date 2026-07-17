@@ -14,6 +14,7 @@ from contextlib import redirect_stderr, redirect_stdout
 from datetime import datetime
 from html import escape
 from io import BytesIO, StringIO
+import zipfile
 from pathlib import Path
 from typing import List, Optional
 
@@ -96,6 +97,9 @@ SUPPORTED_MERGE_EXTS = {
 }
 SUPPORTED_IMAGE_FORMATS = {"png", "jpeg", "jpg", "webp"}
 TEXT_SOURCE_EXTS = {".txt", ".md", ".csv", ".json"}
+PDF_TO_IMAGE_PAGE_LIMIT = 1000
+PDF_TO_IMAGE_PREVIEW_LIMIT = 50
+
 
 def _env_flag(name: str, default: bool = False) -> bool:
     raw = os.getenv(name)
@@ -610,30 +614,24 @@ def _render_pdf_pages(
     if pdfium is not None:
         doc = pdfium.PdfDocument(pdf_bytes)
         try:
-            pages = []
             scale = dpi / 72
             for page_index in range(first_page - 1, last_page):
                 page = doc[page_index]
                 bitmap = page.render(scale=scale)
-                pages.append(bitmap.to_pil())
-            return pages
+                yield bitmap.to_pil()
         finally:
             close = getattr(doc, "close", None)
             if callable(close):
                 close()
+        return
 
-    try:
-        return convert_from_bytes(
+    for page_num in range(first_page, last_page + 1):
+        yield convert_from_bytes(
             pdf_bytes,
             dpi=dpi,
-            first_page=first_page,
-            last_page=last_page,
-        )
-    except (PDFInfoNotInstalledError, PDFPageCountError, PDFSyntaxError) as exc:
-        raise HTTPException(
-            status_code=500,
-            detail="PDF render failed. Install pypdfium2 or Poppler.",
-        ) from exc
+            first_page=page_num,
+            last_page=page_num,
+        )[0]
 
 
 @app.get("/")
@@ -785,7 +783,7 @@ async def pdf_to_image(
         raise HTTPException(status_code=400, detail="Invalid PDF file.") from exc
 
     first_page = page_from if page_from is not None else 1
-    last_page = page_to if page_to is not None else total_pages
+    last_page = page_to if page_to is not None else min(total_pages, PDF_TO_IMAGE_PAGE_LIMIT)
 
     if first_page < 1 or first_page > total_pages:
         raise HTTPException(status_code=400, detail=f"page_from must be between 1 and {total_pages}.")
@@ -794,15 +792,14 @@ async def pdf_to_image(
     if first_page > last_page:
         raise HTTPException(status_code=400, detail="page_from cannot be greater than page_to.")
 
-    images = _render_pdf_pages(
+    preview_count = min(last_page - first_page + 1, PDF_TO_IMAGE_PREVIEW_LIMIT)
+    result = []
+    for idx, image in enumerate(_render_pdf_pages(
         pdf_bytes=pdf_bytes,
         dpi=dpi,
         first_page=first_page,
-        last_page=last_page,
-    )
-
-    result = []
-    for image in images:
+        last_page=first_page + preview_count - 1,
+    )):
         with BytesIO() as buf:
             export_image = image
             save_kwargs = {}
@@ -823,8 +820,156 @@ async def pdf_to_image(
         "format": requested_format,
         "page_from": first_page,
         "page_to": last_page,
+        "preview_limit": PDF_TO_IMAGE_PREVIEW_LIMIT,
         "images": result,
     }
+
+
+@app.post("/pdf-to-image-zip")
+async def pdf_to_image_zip(
+    background_tasks: BackgroundTasks,
+    file: UploadFile = File(...),
+    format: str = Form("png"),
+    dpi: int = Form(300),
+    page_from: Optional[int] = Form(None),
+    page_to: Optional[int] = Form(None),
+):
+    if not (file.filename or "").lower().endswith(".pdf"):
+        raise HTTPException(status_code=400, detail="Only PDF files are supported for conversion.")
+
+    dpi = max(72, min(600, int(dpi)))
+    requested_format, pil_format = _resolve_image_format(format)
+
+    pdf_bytes = await file.read()
+    if not pdf_bytes:
+        raise HTTPException(status_code=400, detail="Uploaded PDF is empty.")
+
+    try:
+        total_pages = len(PdfReader(BytesIO(pdf_bytes)).pages)
+    except Exception as exc:
+        raise HTTPException(status_code=400, detail="Invalid PDF file.") from exc
+
+    first_page = page_from if page_from is not None else 1
+    last_page = page_to if page_to is not None else min(total_pages, PDF_TO_IMAGE_PAGE_LIMIT)
+
+    if first_page < 1 or first_page > total_pages:
+        raise HTTPException(status_code=400, detail=f"page_from must be between 1 and {total_pages}.")
+    if last_page < 1 or last_page > total_pages:
+        raise HTTPException(status_code=400, detail=f"page_to must be between 1 and {total_pages}.")
+    if first_page > last_page:
+        raise HTTPException(status_code=400, detail="page_from cannot be greater than page_to.")
+
+    zip_buf = BytesIO()
+    with zipfile.ZipFile(zip_buf, "w", zipfile.ZIP_DEFLATED) as zf:
+        for page_idx, image in enumerate(_render_pdf_pages(
+            pdf_bytes=pdf_bytes,
+            dpi=dpi,
+            first_page=first_page,
+            last_page=last_page,
+        ), start=first_page):
+            export_image = image
+            save_kwargs = {}
+
+            if pil_format == "JPEG":
+                if export_image.mode not in ("RGB", "L"):
+                    export_image = export_image.convert("RGB")
+                save_kwargs["quality"] = 92
+            elif pil_format == "WEBP":
+                if export_image.mode == "RGBA":
+                    export_image = export_image.convert("RGB")
+                save_kwargs["quality"] = 90
+
+            img_buf = BytesIO()
+            export_image.save(img_buf, format=pil_format, **save_kwargs)
+            zf.writestr(f"page_{page_idx:04d}.{requested_format}", img_buf.getvalue())
+
+    zip_buf.seek(0)
+    output_path = OUTPUT_DIR / f"pdf_images_{uuid.uuid4().hex}.zip"
+    output_path.write_bytes(zip_buf.getvalue())
+    background_tasks.add_task(_safe_remove, output_path)
+    return FileResponse(
+        path=str(output_path),
+        filename="pdf_images.zip",
+        media_type="application/zip",
+        background=background_tasks,
+    )
+
+
+@app.post("/pdf-to-text")
+async def pdf_to_text(
+    background_tasks: BackgroundTasks,
+    file: UploadFile = File(...),
+    language: str = Form("eng"),
+):
+    if not (file.filename or "").lower().endswith(".pdf"):
+        raise HTTPException(status_code=400, detail="Only PDF files are supported.")
+
+    pdf_bytes = await file.read()
+    if not pdf_bytes:
+        raise HTTPException(status_code=400, detail="Uploaded PDF is empty.")
+
+    try:
+        total_pages = len(PdfReader(BytesIO(pdf_bytes)).pages)
+    except Exception as exc:
+        raise HTTPException(status_code=400, detail="Invalid PDF file.") from exc
+
+    pages_text = []
+    all_text_parts = []
+
+    try:
+        reader = PdfReader(BytesIO(pdf_bytes))
+        for page in reader.pages:
+            t = page.extract_text() or ""
+            pages_text.append(t)
+            all_text_parts.append(t)
+    except Exception:
+        pages_text = [""] * total_pages
+
+    digital_text = "\n".join(all_text_parts).strip()
+    ocr_fallback = fitz is not None
+
+    non_empty = sum(1 for t in pages_text if t.strip())
+    use_ocr = (non_empty < max(1, total_pages // 3)) and ocr_fallback
+
+    if use_ocr:
+        try:
+            doc = fitz.open(stream=pdf_bytes, filetype="pdf")
+            ocr_pages = []
+            for page_num in range(total_pages):
+                page = doc[page_num]
+                tp = page.get_textpage_ocr(
+                    flags=3,
+                    language=language,
+                    dpi=300,
+                    full=True,
+                )
+                t = tp.extract_text() or ""
+                ocr_pages.append(t)
+            doc.close()
+            pages_text = ocr_pages
+            all_text_parts = ocr_pages
+        except Exception:
+            pass
+
+    combined = "\n".join(all_text_parts).strip()
+
+    txt_buf = BytesIO()
+    txt_buf.write(combined.encode("utf-8"))
+    txt_buf.seek(0)
+    output_path = OUTPUT_DIR / f"pdf_text_{uuid.uuid4().hex}.txt"
+    output_path.write_bytes(txt_buf.getvalue())
+    background_tasks.add_task(_safe_remove, output_path)
+
+    return FileResponse(
+        path=str(output_path),
+        filename=f"{Path(file.filename).stem}.txt",
+        media_type="text/plain",
+        background=background_tasks,
+        headers={
+            "X-Total-Pages": str(total_pages),
+            "X-Ocr-Used": str(use_ocr).lower(),
+        },
+    )
 
 
 @app.post("/remove-pages")
